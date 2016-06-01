@@ -1,5 +1,5 @@
 #!/bin/bash
-sudo apt-get -y update
+apt-get update
 
 # set up a silent install of MySQL
 # the following commands set the MySQL root password when you install the mysql-server package.
@@ -7,7 +7,7 @@ sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password passwor
 sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password Pass1word'
 
 # install the LAMP stack
-sudo apt-get -y install lamp-server^
+apt-get -y install lamp-server^
 
 #Restart all the installed services to verify that everything is installed properly
 
