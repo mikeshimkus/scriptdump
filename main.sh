@@ -1,7 +1,3 @@
 #!/bin/bash
-
-tmsh modify sys dns name-servers replace-all-with { 8.8.8.8 }       
-sleep 10
-
-tmsh modify sys ntp timezone UTC servers replace-all-with { pool.ntp.org }
-sleep 10
+mkdir -m 777 /var/tmp/mystuff
+touch /var/tmp/mystuff/mystuff.json
