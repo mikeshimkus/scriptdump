@@ -10,13 +10,9 @@ do	case "$option"  in
     esac 
 done
 
-mkdir -m 777 /var/tmp/mystuff
-touch /var/tmp/mystuff/mystuff.txt
+mkdir -m 777 /var/tmp/azure_dict
+touch /var/tmp/azure_dict/az.json
 
-echo $storage_acct >> /var/tmp/mystuff/mystuff.txt
-echo $storage_key >> /var/tmp/mystuff/mystuff.txt
-echo $subscription_id >> /var/tmp/mystuff/mystuff.txt
-echo $tenant_id >> /var/tmp/mystuff/mystuff.txt
-echo $client_id >> /var/tmp/mystuff/mystuff.txt
-echo $sp_secret >> /var/tmp/mystuff/mystuff.txt
+json="{"\"storageAccount\"":"\"$storage_acct\"","\"storageKey\"":"\"$storage_key\"","\"subscriptionId\"":"\"$subscription_id\"","\"tenantId\"":"\"$tenant_id\"","\"clientId\"":"\"$client_id\"","\"secret\"":"\"$sp_secret\""}"
+echo $json >> /var/tmp/azure_dict/az.json
 exit
