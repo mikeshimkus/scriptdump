@@ -1,8 +1,9 @@
 #!/bin/bash
-while getopts s:k:i:t:c:p:r:v:u:x: option
-do      case "$option"  in
-        s) storage_acct=$OPTARG;;
-        k) storage_key=$OPTARG;;
+while getopts m:a:o::i:t:c:p:r:v:u:x: option
+do case "$option" in
+        m) mode=$OPTARG;;
+        a) addr=$OPTARG;;
+        o) port=$OPTARG;;
         i) subscription_id=$OPTARG;;
         t) tenant_id=$OPTARG;;
         c) client_id=$OPTARG;;
