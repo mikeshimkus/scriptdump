@@ -6,7 +6,6 @@ var tenantId = args[4];
 var secret = args[5];
 var resourceGroup = args[6];
 var azureSet = args[7];
-var selfIp = args[8];
 
 var msRestAzure = require('ms-rest-azure');
 var credentials = new msRestAzure.ApplicationTokenCredentials(clientId, tenantId, secret);
@@ -39,9 +38,6 @@ var bigip = new iControl({
   strict: false,
   debug: false
 });
-
-var computeManagementClient = require('azure-arm-compute');
-var computeClient = new computeManagementClient(credentials, subscriptionId);
 
 var networkManagementClient = require('azure-arm-network');
 var networkClient = new networkManagementClient(credentials, subscriptionId);
