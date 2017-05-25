@@ -178,7 +178,7 @@
           "installCloudLibs": "[concat(variables('singleQuote'), '#!/bin/bash\necho about to execute\nchecks=0\nwhile [ $checks -lt 120 ]; do echo checking mcpd\n/usr/bin/tmsh -a show sys mcp-state field-fmt | grep -q running\nif [ $? == 0 ]; then\necho mcpd ready\nbreak\nfi\necho mcpd not ready yet\nlet checks=checks+1\nsleep 1\ndone\necho loading verifyHash script\n/usr/bin/tmsh load sys config merge file /config/verifyHash\nif [ $? != 0 ]; then\necho cannot validate signature of /config/verifyHash\nexit\nfi\necho loaded verifyHash\nscript_loc=\"/var/lib/waagent/custom-script/download/0/\"\nconfig_loc=\"/config/cloud/\"\nhashed_file_list=\"${config_loc}f5-cloud-libs.tar.gz\"\nfor file in $hashed_file_list; do\necho \"verifying $file\"\n/usr/bin/tmsh run cli script verifyHash $file\nif [ $? != 0 ]; then\necho \"$file is not valid\"\nexit 1\nfi\necho \"verified $file\"\ndone\necho \"expanding $hashed_file_list\"\ntar xvfz /config/cloud/f5-cloud-libs.tar.gz -C /config/cloud/node_modules\ntouch /config/cloud/cloudLibsReady', variables('singleQuote'))]", 
           "dnsLabel": "[toLower(parameters('dnsLabel'))]", 
           "bigIpNicPortValue": "[variables('bigIpNicPortMap')['1'].Port]", 
-          "bigIpMgmtPort": "[variables('bigIpVersionPortMap')[variables('bigIpNicPortValue')].Port]", 
+          "bigIpMgmtPort": "8443", 
           "availabilitySetName": "[concat(variables('dnsLabel'), '-avset')]", 
           "nicName": "[concat(variables('dnsLabel'), '-nic')]", 
           "virtualNetworkName": "[concat(variables('dnsLabel'), '-vnet')]", 
