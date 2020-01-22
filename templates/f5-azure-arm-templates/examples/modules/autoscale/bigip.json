@@ -8,9 +8,6 @@
         "adminUsername": {
             "type": "string"
         },
-        "newDataStorageAccountName": {
-            "type": "string"
-        },
         "location": {
             "type": "string"
         },
@@ -66,9 +63,6 @@
     "resources": [
         {
             "apiVersion": "[variables('computeApiVersion')]",
-            "dependsOn": [
-                "[concat('Microsoft.Storage/storageAccounts/', parameters('newDataStorageAccountName'))]"
-            ],
             "location": "[parameters('location')]",
             "name": "[parameters('vmssName')]",
             "plan": "[if(parameters('useCustomImage'), json('null'), parameters('imagePlan'))]",

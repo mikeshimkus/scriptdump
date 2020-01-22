@@ -865,7 +865,6 @@
                     "loadBalancerBackendAddressPoolsArray":{ "value": "[variables('loadBalancerBackendAddressPoolsArray')]" },
                     "location":{ "value": "[variables('location')]" },
                     "mgmtSubnetId":{ "value": "[variables('mgmtSubnetId')]" },
-                    "newDataStorageAccountName":{ "value": "[variables('newDataStorageAccountName')]" },
                     "provisionPublicIP":{ "value": "[parameters('provisionPublicIP')]" },
                     "publicIpAddressConfiguration":{ "value": "[variables('publicIpAddressConfiguration')]" },
                     "storageProfileArray":{ "value": "[variables('storageProfileArray')]" },
