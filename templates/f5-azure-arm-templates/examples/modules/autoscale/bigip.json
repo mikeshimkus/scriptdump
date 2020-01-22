@@ -38,6 +38,9 @@
         "publicIpAddressConfiguration": {
             "type": "object"
         },
+        "mgmtNsgId": {
+            "type": "string"
+        },
         "mgmtSubnetId": {
             "type": "string"
         },

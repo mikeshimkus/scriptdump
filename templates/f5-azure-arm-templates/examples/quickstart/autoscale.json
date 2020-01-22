@@ -773,7 +773,7 @@
                             "frontendIPConfiguration": {
                                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('externalLoadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
                             },
-                            "frontendPort": "[parameters('applicationSecurePort')]",
+                            "frontendPort": 443,
                             "idleTimeoutInMinutes": 15,
                             "probe": {
                                 "id": "[variables('lbTcpProbeIdHttps')]"
@@ -864,6 +864,7 @@
                     "instanceType":{ "value": "[parameters('instanceType')]" },
                     "loadBalancerBackendAddressPoolsArray":{ "value": "[variables('loadBalancerBackendAddressPoolsArray')]" },
                     "location":{ "value": "[variables('location')]" },
+                    "mgmtNsgId":{ "value": "[variables('mgmtNsgId')]" },
                     "mgmtSubnetId":{ "value": "[variables('mgmtSubnetId')]" },
                     "provisionPublicIP":{ "value": "[parameters('provisionPublicIP')]" },
                     "publicIpAddressConfiguration":{ "value": "[variables('publicIpAddressConfiguration')]" },
