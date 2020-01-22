@@ -122,23 +122,7 @@
                                 ]
                             }
                         },
-                        "customData": "[base64(concat('#!/bin/bash\n\n # make directory\n mkdir -p /config/cloud\n\n # config file\n cat << 'EOF' > /config/cloud/onboard_config.yaml\n runtime_parameters:\n - name: TS_ACCESS_KEY\n type: vault\n vaultProvider: KMS\n key: my_ts_access_key\n extension_packages:\n install_operations:\n - extensionType: DO\n extensionVersion: latest\n - extensionType: AS3\n extensionVersion: latest\n - extensionType: TS\n extensionVersion: latest\n EOF'))]"
-                    },
-                    "extensionProfile": {
-                        "extensions": [
-                            {
-                                "name": "AppInstall",
-                                "properties": {
-                                    "publisher": "Microsoft.Azure.Extensions",
-                                    "type": "CustomScript",
-                                    "typeHandlerVersion": "2.0",
-                                    "autoUpgradeMinorVersion": true,
-                                    "settings": {
-                                        "commandToExecute": "curl --verify True https://github.com/F5Networks/f5-onboarder/1.0/install.sh | bash f5-onboarder -c /config/cloud/onboard_config.yaml"
-                                    }
-                                }
-                            }
-                        ]
+                        "customData": "[base64(concat('#!/bin/bash\n\n # make directory\n mkdir -p /config/cloud\n\n # config file\n cat << 'EOF' > /config/cloud/onboard_config.yaml\n extension_packages:\n install_operations:\n - extensionType: DO\n extensionVersion: latest\n - extensionType: AS3\n extensionVersion: latest\n - extensionType: TS\n extensionVersion: latest\n EOF\n\n # install and execute\n curl --verify True https://github.com/F5Networks/f5-onboarder/1.0/install.sh | bash f5-onboarder -c /config/cloud/onboard_config.yaml'))]"
                     },
                     "storageProfile": "[if(parameters('useCustomImage'), parameters('storageProfileArray').customImage, parameters('storageProfileArray').platformImage)]"
                 }
