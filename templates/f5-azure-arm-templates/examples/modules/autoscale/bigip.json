@@ -64,8 +64,7 @@
         }
     },
     "variables": {
-        "computeApiVersion": "2017-12-01",
-        "userData": "[concat('#cloud-init\n\nwrite_files:\n  - path: /config/cloud/onboard_config.yaml\n    permissions: 0755\n    owner: root:root\n    content: |\n        runtime_parameters:\n        - name: 'INTERFACE_NAME'\n          type: url\n          url: http://169.254.169.254/metadata/interfaces\n          nestedData: '[0].name'\n        - name: 'TS_ACCESS_KEY'\n          type: vault\n          vaultProvider: KMS\n          key: my_ts_access_key\n    extension_packages:\n        install_operations:\n            - extensionType: DO\n            extensionVersion: 1.5.0\n            - extensionType: AS3\n            extensionVersion: 1.10.0\n            - extensionType: TS\n            extensionVersion: latest\n    extension_services:\n        service_operations:\n            - extensionType: DO\n            type: file\n            value: /config/cloud/do_declaration.json\n            - extensionType: AS3\n            type: url\n            value: !Ref AS3DeclarationUrl\n            - extensionType: TS\n            type: providerStorage\n            value: s3://TSDeclarationUrl.json\nruncmd:\n    curl --verify True https://cdn.f5.com/product/cloudsolutions/solution-scripts/install.sh | bash\n    f5-onboarder -c /config/cloud/onboard_config.yaml')]"
+        "computeApiVersion": "2017-12-01"
     },
     "resources": [
         {
