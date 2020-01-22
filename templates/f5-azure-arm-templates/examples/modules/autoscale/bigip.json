@@ -18,16 +18,16 @@
             "type": "string"
         },
         "useCustomImage": {
-            "type": "string"
+            "type": "bool"
         },
         "imagePlan": {
-            "type": "string"
+            "type": "object"
         },
         "loadBalancerBackendAddressPoolsArray": {
             "type": "array"
         },
         "attachInternalLoadBalancer": {
-            "type": "string"
+            "type": "bool"
         },
         "subscriptionID": {
             "type": "string"
@@ -39,16 +39,13 @@
             "type": "string"
         },
         "publicIpAddressConfiguration": {
-            "type": "string"
+            "type": "object"
         },
         "mgmtSubnetId": {
             "type": "string"
         },
-        "authenticationType": {
-            "type": "string"
-        },
         "storageProfileArray": {
-            "type": "array"
+            "type": "object"
         },
         "vmScaleSetMinCount": {
             "type": "string"
@@ -60,7 +57,7 @@
             "type": "object"
         },
         "useAvailabilityZones": {
-            "type": "string"
+            "type": "bool"
         }
     },
     "variables": {
