@@ -847,7 +847,8 @@
             "apiVersion": "2017-05-10",
             "name": "bigipTemplate",
             "dependsOn": [
-                "[concat('Microsoft.Storage/storageAccounts/', variables('newDataStorageAccountName'))]"
+                "[concat('Microsoft.Storage/storageAccounts/', variables('newDataStorageAccountName'))]",
+                "[variables('externalLoadBalancerName')]"
             ],
             "properties": {
                 "mode": "Incremental",
