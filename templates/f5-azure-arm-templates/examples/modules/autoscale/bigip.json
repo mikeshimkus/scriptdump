@@ -123,7 +123,7 @@
                                 ]
                             }
                         },
-                        "customData": "[base64(concat('#!/bin/bash\n\n # make directory\n mkdir -p /config/cloud\n\n # config file\n cat <<', variables('singleQuote'), 'EOF', variables('singleQuote'), ' > /config/cloud/onboard_config.yaml\n extension_packages:\n install_operations:\n - extensionType: DO\n extensionVersion: latest\n - extensionType: AS3\n extensionVersion: latest\n - extensionType: TS\n extensionVersion: latest\n EOF\n\n # install and execute\n curl --verify True https://raw.githubusercontent.com/edwoodjrjr/scriptdump/master/solution-scripts/install.sh | bash f5-onboarder -c /config/cloud/onboard_config.yaml'))]"
+                        "customData": "[base64(concat('#!/bin/bash\n\n # make directory\n mkdir -p /config/cloud\n\n # config file\n cat << ', variables('singleQuote'), 'EOF', variables('singleQuote'), ' > /config/cloud/onboard_config.yaml\n extension_packages:\n install_operations:\n - extensionType: DO\n extensionVersion: latest\n - extensionType: AS3\n extensionVersion: latest\n - extensionType: TS\n extensionVersion: latest\n EOF\n\n # install and execute\n curl --verify True https://raw.githubusercontent.com/edwoodjrjr/scriptdump/master/solution-scripts/install.sh | bash f5-onboarder -c /config/cloud/onboard_config.yaml'))]"
                     },
                     "storageProfile": "[if(parameters('useCustomImage'), parameters('storageProfileArray').customImage, parameters('storageProfileArray').platformImage)]"
                 }
