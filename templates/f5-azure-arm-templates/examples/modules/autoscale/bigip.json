@@ -123,7 +123,7 @@
                                 ]
                             }
                         },
-                        "customData": "[base64(concat('runtime_parameters:\n  - name: TS_ACCESS_KEY\n    type: vault\n    vaultProvider: KMS\n    key: my_ts_access_key\nextension_packages:\n  install_operations:\n    - extensionType: DO\n    extensionVersion: latest\n    - extensionType: AS3\n    extensionVersion: latest\n    - extensionType: TS\n    extensionVersion: latest\nextension_services:\n  service_operations:\n    - extensionType: DO\n    type: url\n    value: !Ref DODeclarationUrl'))]"
+                        "customData": "[base64(concat('extension_packages:\n  install_operations:\n    - extensionType: DO\n      extensionVersion: latest\n    - extensionType: AS3\n      extensionVersion: latest\n    - extensionType: TS\n      extensionVersion: latest'))]"
                     },
                     "storageProfile": "[if(parameters('useCustomImage'), parameters('storageProfileArray').customImage, parameters('storageProfileArray').platformImage)]",
                     "extensionProfile": {
@@ -136,7 +136,7 @@
                                     "typeHandlerVersion": "2.0",
                                     "autoUpgradeMinorVersion": true,
                                     "settings": {
-                                        "commandToExecute": "mkdir -p /config/cloud; cp /var/lib/waagent/CustomData /config/cloud/onboard_config.yaml; curl --verify True https://raw.githubusercontent.com/edwoodjrjr/scriptdump/master/solution-scripts/install.sh | bash f5-onboarder -c /config/cloud/onboard_config.yaml"
+                                        "commandToExecute": "mkdir -p /config/cloud; cp /var/lib/waagent/CustomData /config/cloud/onboard_config.yaml; curl https://raw.githubusercontent.com/edwoodjrjr/scriptdump/master/solution-scripts/install.sh | bash f5-cloud-onboarder -c /config/cloud/onboard_config.yaml"
                                     }
                                 }
                             }
