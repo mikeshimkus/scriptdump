@@ -123,7 +123,7 @@
                                 ]
                             }
                         },
-                        "customData": "[base64(runtime_parameters:\n  - name: TS_ACCESS_KEY\n    type: vault\n    vaultProvider: KMS\n    key: my_ts_access_key\nextension_packages:\n  install_operations:\n    - extensionType: DO\n    extensionVersion: latest\n    - extensionType: AS3\n    extensionVersion: latest\n    - extensionType: TS\n    extensionVersion: latest\nextension_services:\n  service_operations:\n    - extensionType: DO\n    type: url\n    value: !Ref DODeclarationUrl)]"
+                        "customData": "[base64(concat('runtime_parameters:\n  - name: TS_ACCESS_KEY\n    type: vault\n    vaultProvider: KMS\n    key: my_ts_access_key\nextension_packages:\n  install_operations:\n    - extensionType: DO\n    extensionVersion: latest\n    - extensionType: AS3\n    extensionVersion: latest\n    - extensionType: TS\n    extensionVersion: latest\nextension_services:\n  service_operations:\n    - extensionType: DO\n    type: url\n    value: !Ref DODeclarationUrl'))]"
                     },
                     "storageProfile": "[if(parameters('useCustomImage'), parameters('storageProfileArray').customImage, parameters('storageProfileArray').platformImage)]",
                     "extensionProfile": {
