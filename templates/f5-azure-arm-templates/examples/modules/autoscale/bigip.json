@@ -123,7 +123,7 @@
                                 ]
                             }
                         },
-                        "customData": "[base64(concat('runtime_parameters: []\nextension_packages:\n  install_operations:\n    - extensionType: do\n      extensionVersion: latest\n    - extensionType: as3\n      extensionVersion: latest\n    - extensionType: ts\n      extensionVersion: latest\nextension_services:\n  service_operations: []'))]"
+                        "customData": "[base64(concat('runtime_parameters: []\nextension_packages:\n  install_operations:\n    - extensionType: do\n      extensionVersion: 1.5.0\n    - extensionType: as3\n      extensionVersion: 3.13.0\nextension_services:\n  service_operations: []'))]"
                     },
                     "storageProfile": "[if(parameters('useCustomImage'), parameters('storageProfileArray').customImage, parameters('storageProfileArray').platformImage)]",
                     "extensionProfile": {
