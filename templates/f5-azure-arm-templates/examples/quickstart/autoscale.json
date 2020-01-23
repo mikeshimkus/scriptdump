@@ -537,9 +537,21 @@
         "appInsightsNameArray": "[split(concat(variables('appInsightsName'), ';', variables('resourceGroupName')) , ';')]",
         "scaleOutTimeWindow": "[concat('PT', parameters('scaleOutTimeWindow'), 'M')]",
         "scaleInTimeWindow": "[concat('PT', parameters('scaleInTimeWindow'), 'M')]",
-        "cpuMetricName": "F5_TMM_CPU",
-        "throughputMetricName": "F5_TMM_TRAFFIC",
+        "cpuMetricName": "HOST_CPU",
+        "throughputMetricName": "HOST_Traffic",
         "scaleMetricMap": {
+            "HOST_CPU": {
+                "metricName": "Percentage CPU",
+                "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('vmssName'))]",
+                "thresholdIn": "[parameters('scaleInCpuThreshold')]",
+                "thresholdOut": "[parameters('scaleOutCpuThreshold')]"
+            },
+            "HOST_Traffic": {
+                "metricName": "Network In",
+                "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('vmssName'))]",
+                "thresholdIn": "[parameters('scaleInThroughputThreshold')]",
+                "thresholdOut": "[parameters('scaleOutThroughputThreshold')]"
+            },
             "F5_TMM_CPU": {
                 "metricName": "Percentage CPU",
                 "metricResourceUri": "[resourceId(variables('appInsightsNameArray')[1], 'Microsoft.Insights/components', variables('appInsightsNameArray')[0])]",
