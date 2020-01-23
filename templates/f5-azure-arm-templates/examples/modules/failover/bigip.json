@@ -98,9 +98,25 @@
                     ]
                 }
               },
-              "customData": "[base64(concat('#cloud-init\n\n write_files:\n - path: /config/cloud/onboard_config.yaml\n permissions: 0755\n owner: root:root\n content: |\n - name: 'LICENSE_KEY_1'\n value:', concat(parameters('licenseKey', copyIndex(1)), '\n extension_packages:\n install_operations:\n - extensionType: DO\n extensionVersion: latest\n - extensionType: AS3\n extensionVersion: latest\n - extensionType: TS\n extensionVersion: latest\n extension_services:\n service_operations:\n - extensionType: DO\n type: url\n value: !Ref DODeclarationUrl\n runcmd:\n curl --verify True https://cdn.f5.com/product/cloudsolutions/solution-scripts/install.sh | bash\n f5-onboarder -c /config/cloud/onboard_config.yaml'))]"
+              "customData": "[base64(concat('runtime_parameters:\n  - name: LICENSE_KEY\n    value:', concat(parameters('licenseKey', copyIndex(1)), '\nextension_packages:\n  install_operations:\n    - extensionType: DO\n      extensionVersion: latest\n    - extensionType: AS3\n      extensionVersion: latest\n    - extensionType: CFE\n      extensionVersion: latest'))]"
             },
-            "storageProfile": "[if(parameters('useCustomImage'), parameters('storageProfileArray').customImage, parameters('storageProfileArray').platformImage)"
+            "storageProfile": "[if(parameters('useCustomImage'), parameters('storageProfileArray').customImage, parameters('storageProfileArray').platformImage)",
+            "extensionProfile": {
+              "extensions": [
+                  {
+                      "name": "onboarder",
+                      "properties": {
+                          "publisher": "Microsoft.Azure.Extensions",
+                          "type": "CustomScript",
+                          "typeHandlerVersion": "2.0",
+                          "autoUpgradeMinorVersion": true,
+                          "settings": {
+                              "commandToExecute": "mkdir -p /config/cloud; cp /var/lib/waagent/CustomData /config/cloud/onboard_config.yaml; curl https://raw.githubusercontent.com/edwoodjrjr/scriptdump/master/solution-scripts/install.sh | bash; f5-cloud-onboarder -c /config/cloud/onboard_config.yaml"
+                          }
+                      }
+                  }
+              ]
+          }
         },
         "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
         "zones": "[if(parameters('zonesAvailable'), array(copyIndex(1)), json('null'))]",
