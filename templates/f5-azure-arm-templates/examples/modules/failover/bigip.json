@@ -27,22 +27,22 @@
         "type": "string"
       },
       "useCustomImage": {
-          "type": "string"
+          "type": "bool"
       },
       "imagePlan": {
-          "type": "string"
+          "type": "object"
       },
       "storageProfileArray": {
-          "type": "array"
+          "type": "object"
       },
       "selfNicConfigArray": {
-        "type": "array"
+        "type": "object"
       },
       "addtlNicConfigArray": {
-        "type": "array"
+        "type": "object"
       },
       "numberOfAdditionalNics": {
-        "type": "string"
+        "type": "int"
       },
       "instanceType": {
           "type": "string"
@@ -54,7 +54,7 @@
         "type": "string"
       },
       "zonesAvailable": {
-          "type": "string"
+          "type": "bool"
       }
     },
     "variables": {
@@ -98,7 +98,7 @@
                     ]
                 }
               },
-              "customData": "[base64(concat('runtime_parameters:\n  - name: LICENSE_KEY\n    value:', concat(parameters('licenseKey', copyIndex(1)), '\nextension_packages:\n  install_operations:\n    - extensionType: DO\n      extensionVersion: latest\n    - extensionType: AS3\n      extensionVersion: latest\n    - extensionType: CFE\n      extensionVersion: latest'))]"
+              "customData": "[base64(concat('runtime_parameters:\n  - name: LICENSE_KEY\n    value:', concat(parameters('licenseKey', copyIndex(1)), '\nextension_packages:\n  install_operations:\n    - extensionType: do\n      extensionVersion: latest\n    - extensionType: as3\n      extensionVersion: latest\n    - extensionType: cfe\n      extensionVersion: latest\nextension_services:\n  service_operations: []'))]"
             },
             "storageProfile": "[if(parameters('useCustomImage'), parameters('storageProfileArray').customImage, parameters('storageProfileArray').platformImage)",
             "extensionProfile": {
