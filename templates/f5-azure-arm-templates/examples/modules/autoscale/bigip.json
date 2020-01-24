@@ -1,7 +1,6 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "apiProfile": "2019–07-01-profile",
     "parameters": {
         "sshKey": {
             "type": "string"
@@ -62,10 +61,12 @@
         }
     },
     "variables": {
+        "computeApiVersion": "2017-12-01",
         "singleQuote": "'"
     },
     "resources": [
         {
+            "apiVersion": "[variables('computeApiVersion')]",
             "location": "[parameters('location')]",
             "name": "[parameters('vmssName')]",
             "plan": "[if(parameters('useCustomImage'), json('null'), parameters('imagePlan'))]",
