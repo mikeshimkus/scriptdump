@@ -62,7 +62,7 @@
   },
   "resources": [
     {
-      "apiVersion": "[variables('computeApiVersion')]",
+      "apiVersion": "2017-12-01",
       "location": "[parameters('location')]",
       "copy": {
         "name": "bigipCopy",
