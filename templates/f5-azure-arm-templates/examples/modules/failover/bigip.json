@@ -75,7 +75,7 @@
           "diagnosticsProfile": {
               "bootDiagnostics": {
                   "enabled": true,
-                  "storageUri": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('newDataStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob]"
+                  "storageUri": "[reference(concat('Microsoft.Storage/storageAccounts/', parameters('newDataStorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob]"
               }
           },
           "hardwareProfile": {
