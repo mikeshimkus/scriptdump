@@ -51,7 +51,7 @@
         "type": "object"
     },
     "availabilitySetId": {
-      "type": "string"
+      "type": "object"
     },
     "zonesAvailable": {
         "type": "bool"
