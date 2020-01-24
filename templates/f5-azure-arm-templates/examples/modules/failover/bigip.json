@@ -55,6 +55,12 @@
     },
     "zonesAvailable": {
         "type": "bool"
+    },
+    "doDeclarationUrl": {
+      "type": "string"
+    },
+    "as3DeclarationUrl": {
+      "type": "string"
     }
   },
   "variables": {
@@ -98,7 +104,7 @@
                   ]
               }
             },
-            "customData": "[base64(concat('runtime_parameters: []\nextension_packages:\n  install_operations:\n    - extensionType: do\n      extensionVersion: 1.5.0\n    - extensionType: as3\n      extensionVersion: 3.13.0\nextension_services:\n  service_operations: []'))]"
+            "customData": "[base64(concat('runtime_parameters: []\nextension_packages:\n  install_operations:\n    - extensionType: do\n      extensionVersion: 1.5.0\n    - extensionType: as3\n      extensionVersion: 3.13.0\nextension_services:\n  \nextension_services:\n    service_operations:\n      - extensionType: do\n        type: url\n        value: ', variables('dODeclarationUrl'),'\n      - extensionType: as3\n        type: url\n        value: ', variables('as3DeclarationUrl'),''))]"
           },
           "storageProfile": "[if(parameters('useCustomImage'), parameters('storageProfileArray').customImage, parameters('storageProfileArray').platformImage)",
           "extensionProfile": {
