@@ -1,6 +1,7 @@
 {
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
     "contentVersion": "7.2.0.0",
+    "apiProfile": "2018–03-01-hybrid",
     "parameters": {
         "templateBaseUrl": {
             "allowedValues": [
@@ -361,9 +362,6 @@
                 "Port": 8443
             }
         },
-        "computeApiVersion": "2017-12-01",
-        "networkApiVersion": "2017-11-01",
-        "storageApiVersion": "2017-10-01",
         "customImage": "[replace(parameters('customImage'), 'OPTIONAL', '')]",
         "useCustomImage": "[not(empty(variables('customImage')))]",
         "createNewCustomImage": "[contains(variables('customImage'), 'https://')]",
@@ -536,8 +534,6 @@
         ],
         "useExistingNsg": "[not(empty(replace(parameters('mgmtNsgName'), 'OPTIONAL', '')))]",
         "mgmtNsgName": "[if(variables('useExistingNsg'), parameters('mgmtNsgName'), concat(variables('dnsLabel'),'-mgmt-nsg'))]",
-        "appInsightsApiVersion": "2015-04-01",
-        "appInsightsComponentsApiVersion": "2015-05-01",
         "useAvailabilityZones": "[and(variables('zonesAvailable'), equals(parameters('useAvailabilityZones'), 'Yes'))]",
         "vmssName": "[concat(parameters('dnsLabel'),'-vmss')]",
         "vmssId": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', variables('vmssName'))]",
@@ -604,7 +600,6 @@
     },
     "resources": [
         {
-            "apiVersion": "[variables('networkApiVersion')]",
             "sku": {
                 "name": "Standard"
             },
@@ -621,7 +616,6 @@
             "type": "Microsoft.Network/publicIPAddresses"
         },
         {
-            "apiVersion": "[variables('networkApiVersion')]",
             "location": "[variables('location')]",
             "name": "[variables('mgmtNsgName')]",
             "condition": "[not(variables('useExistingNsg'))]",
@@ -717,7 +711,6 @@
             "type": "Microsoft.Network/networkSecurityGroups"
         },
         {
-            "apiVersion": "[variables('networkApiVersion')]",
             "condition": "[not(variables('useExistingLoadBalancer'))]",
             "dependsOn": [
                 "[concat('Microsoft.Network/publicIPAddresses/', variables('mgmtPublicIPAddressName'))]"
@@ -832,7 +825,6 @@
             "type": "Microsoft.Network/loadBalancers"
         },
         {
-            "apiVersion": "[variables('storageApiVersion')]",
             "kind": "Storage",
             "location": "[variables('location')]",
             "name": "[variables('newDataStorageAccountName')]",
@@ -847,7 +839,6 @@
             "type": "Microsoft.Storage/storageAccounts"
         },
         {
-            "apiVersion": "[variables('computeApiVersion')]",
             "condition": "[and(variables('useCustomImage'), variables('createNewCustomImage'))]",
             "location": "[variables('location')]",
             "name": "[variables('newCustomImageName')]",
@@ -866,7 +857,6 @@
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2017-05-10",
             "name": "bigipTemplate",
             "dependsOn": [
                 "[concat('Microsoft.Storage/storageAccounts/', variables('newDataStorageAccountName'))]",
@@ -904,7 +894,6 @@
         {
             "type": "Microsoft.Resources/deployments",
             "condition": "[equals(parameters('provisionApp'),'Yes')]",
-            "apiVersion": "2017-05-10",
             "name": "appTemplate",
             "dependsOn": [
                 "[concat('Microsoft.Storage/storageAccounts/', variables('newDataStorageAccountName'))]"
@@ -920,7 +909,6 @@
             }
         },
         {
-            "apiVersion": "[variables('appInsightsApiVersion')]",
             "dependsOn": [
                 "bigipTemplate"
             ],
@@ -1033,7 +1021,6 @@
             "type": "Microsoft.Insights/autoscaleSettings"
         },
         {
-            "apiVersion": "[variables('appInsightsComponentsApiVersion')]",
             "condition": "[contains(toUpper(parameters('appInsights')), 'CREATE_NEW')]",
             "dependsOn": [],
             "kind": "other",
