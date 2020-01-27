@@ -616,7 +616,8 @@
         "tagValues": "[parameters('tagValues')]",
         "newDataStorageAccountName": "[concat(uniqueString(variables('dnsLabel'), resourceGroup().id, deployment().name), 'data000')]",
         "dataStorageAccountType": "Standard_LRS",
-        "deploymentId": "[concat(variables('subscriptionId'), resourceGroup().id, deployment().name, variables('dnsLabel'))]"
+        "deploymentId": "[concat(variables('subscriptionId'), resourceGroup().id, deployment().name, variables('dnsLabel'))]",
+        "mySqlPassword": "Ch@ng3m3!"
     },
     "resources": [
         {
@@ -924,9 +925,6 @@
             "condition": "[equals(parameters('provisionApp'),'Yes')]",
             "apiVersion": "2017-05-10",
             "name": "appTemplate",
-            "dependsOn": [
-                "[concat('Microsoft.Storage/storageAccounts/', variables('newDataStorageAccountName'))]"
-            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -938,7 +936,7 @@
                     "adminUsername":{ "value": "[parameters('adminUsername')]" },
                     "dnsLabel":{ "value": "[concat(variables('dnsLabel'), 'app')]" },
                     "storageAccountNamePrefix":{ "value": "[variables('dnsLabel')]" },
-                    "mySqlPassword":{ "value": "[parameters('sshKey')]" },
+                    "mySqlPassword":{ "value": "[variables('mySqlPassword')]" },
                     "location":{ "value": "[variables('location')]" }
                 }
             }

@@ -19,6 +19,9 @@
       },
       "sshKey": {
         "type": "securestring"
+      },
+      "appSubnet": {
+        "type": "string"
       }
     },
     "variables": {
@@ -27,16 +30,13 @@
       "imageOffer": "UbuntuServer",
       "OSDiskName": "osdiskforlinuxsimple",
       "nicName": "[concat(parameters('dnsLabel'), '-appNic')]",
-      "addressPrefix": "192.168.0.0/16",
-      "subnetName": "[concat(parameters('dnsLabel'), '-appSubnet')]",
-      "subnetPrefix": "192.168.1.0/24",
+      "subnetName": "(parameters('appSubnet')",
       "storageAccountType": "Standard_LRS",
       "publicIPAddressName": "[concat(parameters('dnsLabel'), '-appPip')]",
       "publicIPAddressType": "Dynamic",
       "vmStorageAccountContainerName": "vhds",
       "vmName": "[concat(parameters('dnsLabel'), '-appVm')]",
       "vmSize": "Standard_A2",
-      "virtualNetworkName": "[concat(parameters('dnsLabel'), '-appVnet')]",
       "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
       "networkSecurityGroupName": "[concat(parameters('dnsLabel'), '-appNsg')]",
       "tagValues": {
@@ -117,44 +117,16 @@
       },
       {
         "apiVersion": "2015-06-15",
-        "type": "Microsoft.Network/virtualNetworks",
-        "name": "[variables('virtualNetworkName')]",
-        "location": "[parameters('location')]",
-        "dependsOn": [
-          "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
-        ],
-        "properties": {
-          "addressSpace": {
-            "addressPrefixes": [
-              "[variables('addressPrefix')]"
-            ]
-          },
-          "subnets": [
-            {
-              "name": "[variables('subnetName')]",
-              "properties": {
-                "addressPrefix": "[variables('subnetPrefix')]",
-                "networkSecurityGroup": {
-                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
-                }
-              }
-            }
-          ]
-        }
-      },
-      {
-        "apiVersion": "2015-06-15",
         "type": "Microsoft.Network/networkInterfaces",
         "name": "[variables('nicName')]",
         "location": "[parameters('location')]",
         "dependsOn": [
-          "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
-          "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+          "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]"
         ],
         "properties": {
           "ipConfigurations": [
             {
-              "name": "ipconfig1",
+              "name": "appipconfig1",
               "properties": {
                 "privateIPAllocationMethod": "Dynamic",
                 "publicIPAddress": {
