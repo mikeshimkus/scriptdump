@@ -570,7 +570,9 @@
         "tagValues": "[parameters('tagValues')]",
         "newDataStorageAccountName": "[concat(uniqueString(variables('dnsLabel'), resourceGroup().id, deployment().name), 'data000')]",
         "dataStorageAccountType": "Standard_LRS",
-        "deploymentId": "[concat(variables('subscriptionId'), resourceGroup().id, deployment().name, variables('dnsLabel'))]"
+        "deploymentId": "[concat(variables('subscriptionId'), resourceGroup().id, deployment().name, variables('dnsLabel'))]",
+        "appSubnetName": "app",
+        "mySqlPassword": "Ch@ng3m3!"
     },
     "resources": [
         {
@@ -1060,6 +1062,14 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "sshKey":{ "value": "[parameters('sshKey')]" },
+                    "adminUsername":{ "value": "[parameters('adminUsername')]" },
+                    "dnsLabel":{ "value": "[concat(variables('dnsLabel'), 'app')]" },
+                    "storageAccountNamePrefix":{ "value": "[variables('dnsLabel')]" },
+                    "mySqlPassword":{ "value": "[variables('mySqlPassword')]" },
+                    "appVnetName":{ "value": "[variables('virtualNetworkName')]" },
+                    "appSubnetName":{ "value": "[variables('appSubnetName')]" },
+                    "location":{ "value": "[variables('location')]" }
                 }
             }
         }
