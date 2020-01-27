@@ -1,185 +1,165 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": {    
-      "adminUsername": {
-        "type": "string",
-        "metadata": {
-          "description": "Admin username used to login with."
-        }
+    "parameters": {
+      "storageAccountNamePrefix": {
+        "type": "string"
       },
-      "sshKey": {
-        "metadata": {
-            "description": "SSH public key to login to the Virtual Machine. Note: This should be the public key as a string, typically starting with **---- BEGIN SSH2 PUBLIC KEY ----** and ending with **---- END SSH2 PUBLIC KEY ----**."
-        },
+      "adminUsername": {
+        "type": "string"
+      },
+      "mySqlPassword": {
         "type": "securestring"
       },
-      "publicDNSName": {
-        "type": "string",
-        "metadata": {
-          "description": "The unique DNS name not FQDN, that will be accessible via the Internet. "
-        }
+      "dnsLabel": {
+        "type": "string"
       },
-      "vmSize": {
-        "type": "string",      
-        "defaultValue": "Standard_D2S_V3",
-        "allowedValues": [
-          "Standard_D2S_V3"
-        ],
-        "metadata": {
-          "description": "Virtual Machine instance size."
-        }
+      "location": {
+        "type": "string"
+      },
+      "sshKey": {
+        "type": "securestring"
       }
     },
     "variables": {
-      "newStorageAccountName": "[concat(parameters('publicDNSName'),'store')]",
-      "imagePublisher" : "Canonical",
+      "ubuntuOSVersion": "14.04.5-LTS",
+      "imagePublisher": "Canonical",
       "imageOffer": "UbuntuServer",
-      "imageSKU": "14.04.2-LTS",
-      "virtualNetworkName": "[concat(parameters('publicDNSName'),'-vnet')]",
-      "vnetAddressPrefix" : "192.168.0.0/16",
-      "subnetName" : "[concat(parameters('publicDNSName'),'-subnet')]",
-      "subnetPrefix" : "192.168.0.1/24",
-      "avSetName" : "[concat(parameters('publicDNSName'), '-avset')]",
-      "nicNamePrefix" : "[concat(parameters('publicDNSName'), '-nic')]",
-      "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
-      "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables ('subnetName'))]",
-      "publicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicDNSName'))]",
-      "lbName" : "[concat(parameters('publicDNSName'),'-alb')]",
-      "lbID": "[resourceId('Microsoft.Network/loadBalancers',variables('lbName'))]",
-      "vmNamePrefix" : "[concat(parameters('publicDNSName'),'vm')]",
-      "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/loadBalancerFrontend')]",
-      "lbPoolID": "[concat(variables('lbID'),'/backendAddressPools/LoadBalancerBackend')]",
-      "lbProbeID": "[concat(variables('lbID'),'/probes/tcpProbe')]",
-      "lbProbe443ID": "[concat(variables('lbID'),'/probes/tcpProbe443')]"
+      "OSDiskName": "osdiskforlinuxsimple",
+      "nicName": "[concat(parameters('dnsLabel'), '-appNic')]",
+      "addressPrefix": "192.168.0.0/16",
+      "subnetName": "[concat(parameters('dnsLabel'), '-appSubnet')]",
+      "subnetPrefix": "192.168.1.0/24",
+      "storageAccountType": "Standard_LRS",
+      "publicIPAddressName": "[concat(parameters('dnsLabel'), '-appPip')]",
+      "publicIPAddressType": "Dynamic",
+      "vmStorageAccountContainerName": "vhds",
+      "vmName": "[concat(parameters('dnsLabel'), '-appVm')]",
+      "vmSize": "Standard_A2",
+      "virtualNetworkName": "[concat(parameters('dnsLabel'), '-appVnet')]",
+      "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
+      "networkSecurityGroupName": "[concat(parameters('dnsLabel'), '-appNsg')]",
+      "tagValues": {
+        "foo": "bar"
+      }
     },
     "resources": [
       {
+        "apiVersion": "2015-06-15",
         "type": "Microsoft.Storage/storageAccounts",
-        "name": "[variables('newStorageAccountName')]",
-        "apiVersion": "2017-10-01",
-        "location": "[resourceGroup().location]",
+        "name": "[parameters('storageAccountNamePrefix')]",
+        "location": "[parameters('location')]",
         "properties": {
-          "accountType": "Standard_LRS"
+          "accountType": "[variables('storageAccountType')]"
         }
       },
       {
-        "apiVersion": "2017-12-01",
+        "apiVersion": "2015-06-15",
+        "type": "Microsoft.Network/publicIPAddresses",
+        "name": "[variables('publicIPAddressName')]",
+        "location": "[parameters('location')]",
+        "properties": {
+          "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+          "dnsSettings": {
+            "domainNameLabel": "[parameters('dnsLabel')]"
+          }
+        }
+      },
+      {
+        "comments": "Default Network Security Group for template",
+        "type": "Microsoft.Network/networkSecurityGroups",
+        "apiVersion": "2019-08-01",
+        "name": "[variables('networkSecurityGroupName')]",
+        "location": "[parameters('location')]",
+        "properties": {
+          "securityRules": [
+            {
+              "name": "default-allow-22",
+              "properties": {
+                "priority": 1000,
+                "access": "Allow",
+                "direction": "Inbound",
+                "destinationPortRange": "22",
+                "protocol": "Tcp",
+                "sourceAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*"
+              }
+            },
+            {
+              "name": "default-allow-80",
+              "properties": {
+                "priority": 1001,
+                "access": "Allow",
+                "direction": "Inbound",
+                "destinationPortRange": "80",
+                "protocol": "Tcp",
+                "sourceAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*"
+              }
+            },
+            {
+                "name": "default-allow-443",
+                "properties": {
+                  "priority": 1001,
+                  "access": "Allow",
+                  "direction": "Inbound",
+                  "destinationPortRange": "443",
+                  "protocol": "Tcp",
+                  "sourceAddressPrefix": "*",
+                  "sourcePortRange": "*",
+                  "destinationAddressPrefix": "*"
+                }
+              }
+          ]
+        }
+      },
+      {
+        "apiVersion": "2015-06-15",
         "type": "Microsoft.Network/virtualNetworks",
         "name": "[variables('virtualNetworkName')]",
-        "location": "[resourceGroup().location]",
-        "tags": {
-          "displayName": "VirtualNetwork"
-        },
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+        ],
         "properties": {
           "addressSpace": {
             "addressPrefixes": [
-              "[variables('vnetAddressPrefix')]"
+              "[variables('addressPrefix')]"
             ]
           },
           "subnets": [
             {
               "name": "[variables('subnetName')]",
               "properties": {
-                "addressPrefix": "[variables('subnetPrefix')]"
+                "addressPrefix": "[variables('subnetPrefix')]",
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+                }
               }
             }
           ]
         }
       },
       {
-        "type": "Microsoft.Compute/availabilitySets",
-        "name": "[variables('avSetName')]",
-        "apiVersion": "2017-11-01",
-        "location": "[resourceGroup().location]",
-        "properties": { }
-      },
-      {
-        "apiVersion": "2017-11-01",
-        "type": "Microsoft.Network/publicIPAddresses",
-        "name": "[parameters('publicDNSName')]",
-        "location": "[resourceGroup().location]",
-        "properties": {
-          "publicIPAllocationMethod": "Dynamic",
-          "dnsSettings": {
-            "domainNameLabel": "[parameters('publicDNSName')]"
-          }
-        }
-      },
-      {
-        "apiVersion": "2017-11-01",
-        "type": "Microsoft.Network/networkSecurityGroups",
-        "name": "[concat(parameters('publicDNSName'), '-NSG')]",
-        "location": "[resourceGroup().location]",
-        "properties": {
-          "securityRules": [
-            {
-              "name": "https_rule",
-              "properties": {
-                "description": "",
-                "priority": 101,
-                "sourceAddressPrefix": "*",
-                "sourcePortRange": "*",
-                "destinationAddressPrefix": "*",
-                "destinationPortRange": "443",
-                "protocol": "Tcp",
-                "direction": "Inbound",
-                "access": "Allow"
-              }
-            },
-            {
-              "name": "http_rule",
-              "properties": {
-                "description": "",
-                "priority": 102,
-                "sourceAddressPrefix": "*",
-                "sourcePortRange": "*",
-                "destinationAddressPrefix": "*",
-                "destinationPortRange": "80",
-                "protocol": "Tcp",
-                "direction": "Inbound",
-                "access": "Allow"
-              }
-            },
-            {
-              "name": "ssh_rule",
-              "properties": {
-                "description": "",
-                "priority": 103,
-                "sourceAddressPrefix": "*",
-                "sourcePortRange": "*",
-                "destinationAddressPrefix": "*",
-                "destinationPortRange": "22",
-                "protocol": "Tcp",
-                "direction": "Inbound",
-                "access": "Allow"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "apiVersion": "2017-11-01",
+        "apiVersion": "2015-06-15",
         "type": "Microsoft.Network/networkInterfaces",
-        "name": "[concat(variables('nicNamePrefix'), copyindex())]",
-        "location": "[resourceGroup().location]",
-        "copy": {
-          "name": "nicLoop",
-          "count": 3
-        },
+        "name": "[variables('nicName')]",
+        "location": "[parameters('location')]",
         "dependsOn": [
-          "[concat('Microsoft.Network/loadBalancers/', variables('lbName'))]",
-          "[concat('Microsoft.Network/networkSecurityGroups/', parameters('publicDNSName'),'-NSG')]"
+          "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
+          "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
         ],
         "properties": {
-          "networkSecurityGroup": {
-            "id": "[resourceId('Microsoft.Network/networkSecurityGroups/', concat(parameters('publicDNSName'),'-NSG'))]"
-          },
           "ipConfigurations": [
             {
               "name": "ipconfig1",
               "properties": {
                 "privateIPAllocationMethod": "Dynamic",
+                "publicIPAddress": {
+                  "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
+                },
                 "subnet": {
                   "id": "[variables('subnetRef')]"
                 }
@@ -189,38 +169,31 @@
         }
       },
       {
-        "apiVersion": "2017-12-01",
+        "apiVersion": "2017-03-30",
         "type": "Microsoft.Compute/virtualMachines",
-        "name": "[concat(variables('vmNamePrefix'), copyindex())]",
-        "copy": {
-          "name": "virtualMachineLoop",
-          "count": 3
-        },
-        "location": "[resourceGroup().location]",
+        "name": "[variables('vmName')]",
+        "location": "[parameters('location')]",
+        "tags": "[variables('tagValues')]",
         "dependsOn": [
-          "[concat('Microsoft.Storage/storageAccounts/', variables('newStorageAccountName'))]",
-          "[concat('Microsoft.Network/networkInterfaces/', variables('nicNamePrefix'), copyindex())]",
-          "[concat('Microsoft.Compute/availabilitySets/', variables('avSetName'))]"
+          "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountNamePrefix'))]",
+          "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
         ],
         "properties": {
-          "availabilitySet": {
-            "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('avSetName'))]"
-          },
           "hardwareProfile": {
-            "vmSize": "[parameters('vmSize')]"
+            "vmSize": "[variables('vmSize')]"
           },
           "osProfile": {
-            "computerName": "[concat(variables('vmNamePrefix'), copyIndex())]",
+            "computerName": "[variables('vmName')]",
             "adminUsername": "[parameters('adminUsername')]",
             "linuxConfiguration": {
                 "disablePasswordAuthentication": true,
                 "ssh": {
-                    "publicKeys": [
-                        {
-                            "keyData": "[parameters('sshKey')]",
-                            "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]"
-                        }
-                    ]
+                  "publicKeys": [
+                    {
+                      "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                      "keyData": "[parameters('sshKey')]"
+                    }
+                  ]
                 }
               }
           },
@@ -228,14 +201,11 @@
             "imageReference": {
               "publisher": "[variables('imagePublisher')]",
               "offer": "[variables('imageOffer')]",
-              "sku": "[variables('imageSKU')]",
+              "sku": "[variables('ubuntuOSVersion')]",
               "version": "latest"
             },
             "osDisk": {
-              "name": "osdisk",
-              "vhd": {
-                "uri": "[concat('http://',variables('newStorageAccountName'),'.blob.core.windows.net/vhds/','osdisk', copyindex(), '.vhd')]"
-              },
+              "name": "[concat(variables('vmName'),'_OSDisk')]",
               "caching": "ReadWrite",
               "createOption": "FromImage"
             }
@@ -243,72 +213,34 @@
           "networkProfile": {
             "networkInterfaces": [
               {
-                "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('nicNamePrefix'),copyindex()))]"
+                "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
               }
             ]
+          }
+        }
+      },
+      {
+        "type": "Microsoft.Compute/virtualMachines/extensions",
+        "name": "[concat(variables('vmName'),'/newuserscript')]",
+        "apiVersion": "2015-06-15",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+        ],
+        "properties": {
+          "publisher": "Microsoft.Azure.Extensions",
+          "type": "CustomScript",
+          "typeHandlerVersion": "2.0",
+          "autoUpgradeMinorVersion": true,
+          "settings": {
+            "fileUris": [
+              "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/lamp-app/install_lamp.sh"
+            ]
           },
-          "diagnosticsProfile": {
-            "bootDiagnostics": {
-              "enabled": true,
-              "storageUri": "[concat('http://',variables('newStorageAccountName'),'.blob.core.windows.net')]"
-            }
-          }
-        }
-      },
-      {
-        "type": "Microsoft.Compute/virtualMachines/extensions",
-        "copy": {
-          "name": "extensionLoop",
-          "count": 2
-        },
-        "name": "[concat(variables('vmNamePrefix'), copyindex(),'/startup_script')]",
-        "apiVersion": "2017-03-30",
-        "location": "[resourceGroup().location]",
-        "dependsOn": [
-          "[concat('Microsoft.Compute/virtualMachines/', variables('vmNamePrefix'),copyindex())]"
-        ],
-        "properties": {
-          "publisher": "Microsoft.Azure.Extensions",
-          "type": "CustomScript",
-          "typeHandlerVersion": "2.0",
-          "settings": {
-            "fileUris": [
-              "https://raw.githubusercontent.com/tstanley93/Ubuntu-Servers/master/startup_script.sh",
-              "https://raw.githubusercontent.com/tstanley93/Ubuntu-Servers/master/opencart-2.0.1.1.zip"
-            ],
-            "commandToExecute": "[concat('bash startup_script.sh ',variables('vmNamePrefix'),sub(3,1) ,' ',reference(variables('publicIPAddressID')).dnsSettings.fqdn,' ',sub(3,1), ' ',variables('vmNamePrefix'), ' ',parameters('adminUsername'), ' ',parameters('adminPassword'))]"
-          }
-        }
-      },
-      {
-        "type": "Microsoft.Compute/virtualMachines/extensions",
-        "name": "[concat(variables('vmNamePrefix'), sub(3,1),'/mysql_startup_script')]",
-        "apiVersion": "2017-03-30",
-        "location": "[resourceGroup().location]",
-        "dependsOn": [
-          "[concat('Microsoft.Compute/virtualMachines/', variables('vmNamePrefix'),sub(3,1))]"
-        ],
-        "properties": {
-          "publisher": "Microsoft.Azure.Extensions",
-          "type": "CustomScript",
-          "typeHandlerVersion": "2.0",
-          "settings": {
-            "fileUris": [
-              "https://raw.githubusercontent.com/tstanley93/Ubuntu-Servers/master/mysql_startup_script.sh"
-            ],
-            "commandToExecute": "[concat('bash mysql_startup_script.sh ',parameters('adminPassword'))]"
+          "protectedSettings": {
+            "commandToExecute": "[concat('sh install_lamp.sh ', parameters('mySqlPassword'))]"
           }
         }
       }
-    ],
-    "outputs": {
-      "GUI-URL": {
-        "type": "string",
-        "value": "[concat('https://',reference(variables('publicIPAddressID')).dnsSettings.fqdn,':8443')]"
-      },
-      "SSH-URL": {
-        "type": "string",
-        "value": "[concat(reference(variables('publicIPAddressID')).dnsSettings.fqdn, ' 8022')]"
-      }
-    }
+    ]
   }

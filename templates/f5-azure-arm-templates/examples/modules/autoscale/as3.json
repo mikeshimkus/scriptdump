@@ -15,12 +15,15 @@
           "serviceMain": {
             "class": "Service_HTTP",
             "virtualAddresses": [
-              "0.0.0.0"
+              "10.1.0.4"
             ],
             "pool": "webPool"
           },
           "webPool": {
             "class": "Pool",
+            "monitors": [
+                "http"
+            ],
             "members": [
                 {
                     "servicePort": 80,
@@ -33,8 +36,7 @@
                     "subscriptionId": "d18b486a-112d-4402-add2-7fb1006f943a",
                     "directoryId": "d106871e-7b91-4733-8423-f98586303b68",
                     "applicationId": "d40aad56-b0bd-466d-a6c4-6c9c4d0f9aa7",
-                    "apiAccessKey": "12345",
-                    "credentialUpdate": false
+                    "apiAccessKey": "d40aad56-b0bd-466d-a6c4-6c9c4d0f9aa7"
                 }
             ]
           }

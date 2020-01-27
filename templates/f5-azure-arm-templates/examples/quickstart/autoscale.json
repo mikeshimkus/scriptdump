@@ -86,7 +86,7 @@
                 "Standard_GS4",
                 "Standard_GS5"
             ],
-            "defaultValue": "Standard_DS2_v2",
+            "defaultValue": "Standard_DS4_v2",
             "metadata": {
                 "description": "Instance size of the Virtual Machine."
             },
@@ -934,6 +934,12 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "sshKey":{ "value": "[parameters('sshKey')]" },
+                    "adminUsername":{ "value": "[parameters('adminUsername')]" },
+                    "dnsLabel":{ "value": "[concat(variables('dnsLabel'), 'app')]" },
+                    "storageAccountNamePrefix":{ "value": "[variables('dnsLabel')]" },
+                    "mySqlPassword":{ "value": "[parameters('sshKey')]" },
+                    "location":{ "value": "[variables('location')]" }
                 }
             }
         },
