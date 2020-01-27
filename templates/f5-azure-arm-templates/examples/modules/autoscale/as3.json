@@ -15,7 +15,7 @@
           "serviceMain": {
             "class": "Service_HTTP",
             "virtualAddresses": [
-              "10.1.0.4"
+              "0.0.0.0"
             ],
             "pool": "webPool",
             "policyWAF": {
