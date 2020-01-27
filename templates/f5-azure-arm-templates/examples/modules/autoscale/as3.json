@@ -17,7 +17,10 @@
             "virtualAddresses": [
               "10.1.0.4"
             ],
-            "pool": "webPool"
+            "pool": "webPool",
+            "policyWAF": {
+                "use": "My_ASM_Policy"
+            }
           },
           "webPool": {
             "class": "Pool",
@@ -39,6 +42,11 @@
                     "apiAccessKey": "d40aad56-b0bd-466d-a6c4-6c9c4d0f9aa7"
                 }
             ]
+          },
+          "My_ASM_Policy": {
+            "class": "WAF_Policy",
+            "url": "https://cdn.f5.com/product/cloudsolutions/solution-scripts/asm-policy-linux/asm-policy-linux-medium.xml",
+            "ignoreChanges": true
           }
         }
       }
