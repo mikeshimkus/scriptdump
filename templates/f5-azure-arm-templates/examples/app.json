@@ -20,6 +20,9 @@
       "sshKey": {
         "type": "securestring"
       },
+      "appVnetName": {
+        "type": "string"
+      },
       "appSubnetName": {
         "type": "string"
       }
@@ -30,14 +33,13 @@
       "imageOffer": "UbuntuServer",
       "OSDiskName": "osdiskforlinuxsimple",
       "nicName": "[concat(parameters('dnsLabel'), '-appNic')]",
-      "subnetName": "(parameters('appSubnetName')",
       "storageAccountType": "Standard_LRS",
       "publicIPAddressName": "[concat(parameters('dnsLabel'), '-appPip')]",
       "publicIPAddressType": "Dynamic",
       "vmStorageAccountContainerName": "vhds",
       "vmName": "[concat(parameters('dnsLabel'), '-appVm')]",
       "vmSize": "Standard_A2",
-      "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
+      "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('appVnetName'), parameters('appSubnetName'))]",
       "networkSecurityGroupName": "[concat(parameters('dnsLabel'), '-appNsg')]",
       "tagValues": {
         "foo": "bar"

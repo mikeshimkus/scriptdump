@@ -938,6 +938,7 @@
                     "dnsLabel":{ "value": "[concat(variables('dnsLabel'), 'app')]" },
                     "storageAccountNamePrefix":{ "value": "[variables('dnsLabel')]" },
                     "mySqlPassword":{ "value": "[variables('mySqlPassword')]" },
+                    "appVnetName":{ "value": "[variables('virtualNetworkName')]" },
                     "appSubnetName":{ "value": "[variables('appSubnetName')]" },
                     "location":{ "value": "[variables('location')]" }
                 }
