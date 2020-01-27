@@ -20,7 +20,7 @@
       "sshKey": {
         "type": "securestring"
       },
-      "appSubnet": {
+      "appSubnetName": {
         "type": "string"
       }
     },
@@ -30,7 +30,7 @@
       "imageOffer": "UbuntuServer",
       "OSDiskName": "osdiskforlinuxsimple",
       "nicName": "[concat(parameters('dnsLabel'), '-appNic')]",
-      "subnetName": "(parameters('appSubnet')",
+      "subnetName": "(parameters('appSubnetName')",
       "storageAccountType": "Standard_LRS",
       "publicIPAddressName": "[concat(parameters('dnsLabel'), '-appPip')]",
       "publicIPAddressType": "Dynamic",
