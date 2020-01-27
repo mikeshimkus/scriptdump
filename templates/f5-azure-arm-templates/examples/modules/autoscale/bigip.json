@@ -142,7 +142,7 @@
                                     "typeHandlerVersion": "2.0",
                                     "autoUpgradeMinorVersion": true,
                                     "settings": {
-                                        "commandToExecute": "mkdir -p /config/cloud; cp /var/lib/waagent/CustomData /config/cloud/onboard_config.yaml; curl https://raw.githubusercontent.com/edwoodjrjr/scriptdump/master/solution-scripts/install.sh | bash; #f5-cloud-onboarder -c /config/cloud/onboard_config.yaml"
+                                        "commandToExecute": "mkdir -p /config/cloud; cp /var/lib/waagent/CustomData /config/cloud/onboard_config.yaml; curl https://raw.githubusercontent.com/edwoodjrjr/scriptdump/master/solution-scripts/install.sh | bash; f5-cloud-onboarder -c /config/cloud/onboard_config.yaml"
                                     }
                                 }
                             }
