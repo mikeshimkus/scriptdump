@@ -7,7 +7,7 @@
                 "https://raw.githubusercontent.com/edwoodjrjr/scriptdump/master/",
                 "https://cdn.f5.com/product/cloudsolutions/"
             ],
-            "defaultValue": "https://cdn.f5.com/product/cloudsolutions/",
+            "defaultValue": "https://raw.githubusercontent.com/edwoodjrjr/scriptdump/master/",
             "metadata": {
                 "description": "Location where linked templates are stored."
             },
@@ -319,7 +319,7 @@
                 "Yes",
                 "No"
             ],
-            "defaultValue": "Yes",
+            "defaultValue": "No",
             "metadata": {
                 "description": "Choose yes to deploy app server resources."
             },
