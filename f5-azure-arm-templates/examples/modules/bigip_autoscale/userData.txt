@@ -1,0 +1,32 @@
+#cloud-init
+
+write_files:
+  - path: /config/cloud/onboard_config.yaml
+    permissions: 0755
+    owner: root:root
+    content: |
+        runtime_parameters:
+          - name: HOST_NAME
+            type: metadata
+            nestedData: [0].name
+          - name: AZURE_SERVICE_PRINCIPAL
+            type: vault
+            vaultProvider: azure
+            key: my_service_principal
+    extension_packages:
+        install_operations:
+            - extensionType: DO
+            extensionVersion: 1.5.0
+            - extensionType: AS3
+            extensionVersion: 3.13.0
+    extension_services:
+        service_operations:
+            - extensionType: DO
+            type: url
+            value: !Ref DODeclarationUrl
+            - extensionType: AS3
+            type: url
+            value: !Ref AS3DeclarationUrl
+runcmd:
+    curl --verify True https://github.com/F5Networks/f5-onboarder/1.0/install.sh | bash
+    f5-onboarder -c /config/cloud/onboard_config.yaml

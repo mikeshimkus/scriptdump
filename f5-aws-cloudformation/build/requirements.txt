@@ -1,0 +1,5 @@
+#troposphere
+# Get the latest troposphere repo for aws cloudformation rules support. Can undo this once pypi get the latest repo from github that has support for cloudformation rules.
+git+git://github.com/cloudtools/troposphere.git@dd0632037fc61853815e56ee998e10ab2daecf09
+requests
+awacs

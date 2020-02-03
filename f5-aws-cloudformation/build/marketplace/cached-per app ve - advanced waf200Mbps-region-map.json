@@ -1,0 +1,56 @@
+{
+  "ap-east-1": {
+    "PerAppVeAwaf200Mbps": "ami-dfe992ae"
+  }, 
+  "ap-northeast-1": {
+    "PerAppVeAwaf200Mbps": "ami-0317de07ecc3945e3"
+  }, 
+  "ap-northeast-2": {
+    "PerAppVeAwaf200Mbps": "ami-02a190c6a23891089"
+  }, 
+  "ap-south-1": {
+    "PerAppVeAwaf200Mbps": "ami-0299baca5dd75c87d"
+  }, 
+  "ap-southeast-1": {
+    "PerAppVeAwaf200Mbps": "ami-02b1127025d889860"
+  }, 
+  "ap-southeast-2": {
+    "PerAppVeAwaf200Mbps": "ami-032dc91b85669724a"
+  }, 
+  "ca-central-1": {
+    "PerAppVeAwaf200Mbps": "ami-08a7a8d79bf256241"
+  }, 
+  "eu-central-1": {
+    "PerAppVeAwaf200Mbps": "ami-0729caae6f99ff31e"
+  }, 
+  "eu-north-1": {
+    "PerAppVeAwaf200Mbps": "ami-0d139873"
+  }, 
+  "eu-west-1": {
+    "PerAppVeAwaf200Mbps": "ami-067de32e5f0ed4755"
+  }, 
+  "eu-west-2": {
+    "PerAppVeAwaf200Mbps": "ami-00b58f51a1a2c1b72"
+  }, 
+  "eu-west-3": {
+    "PerAppVeAwaf200Mbps": "ami-0a1abbe7b1b8d4f69"
+  }, 
+  "sa-east-1": {
+    "PerAppVeAwaf200Mbps": "ami-001adecd716860acf"
+  }, 
+  "us-east-1": {
+    "PerAppVeAwaf200Mbps": "ami-01974705c0c5a8546"
+  }, 
+  "us-east-2": {
+    "PerAppVeAwaf200Mbps": "ami-07780417801447623"
+  }, 
+  "us-gov-west-1": {
+    "PerAppVeAwaf200Mbps": "ami-45087e24"
+  }, 
+  "us-west-1": {
+    "PerAppVeAwaf200Mbps": "ami-04cba4ae0fab0d0b6"
+  }, 
+  "us-west-2": {
+    "PerAppVeAwaf200Mbps": "ami-000780ef3466a9451"
+  }
+}

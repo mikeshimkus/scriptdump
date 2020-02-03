@@ -1,0 +1,81 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "7.2.0.0",
+    "parameters": {
+        "adminUsername": {
+            "value": "azureuser"
+        },
+        "authenticationType": {
+            "value": "password"
+        },
+        "adminPasswordOrKey": {
+            "value": ""
+        },
+        "dnsLabel": {
+            "value": ""
+        },
+        "instanceName": {
+            "value": "f5vm01"
+        },
+        "instanceType": {
+            "value": "Standard_DS2_v2"
+        },
+        "imageName": {
+            "value": "Best1Gbps"
+        },
+        "bigIpVersion": {
+            "value": "15.0.100000"
+        },
+        "bigIpModules": {
+            "value": "ltm:nominal"
+        },
+        "vnetName": {
+            "value": ""
+        },
+        "vnetResourceGroupName": {
+            "value": ""
+        },
+        "mgmtSubnetName": {
+            "value": ""
+        },
+        "mgmtIpAddress": {
+            "value": ""
+        },
+        "avSetChoice": {
+            "value": "CREATE_NEW"
+        },
+        "zoneChoice": {
+            "value": "1"
+        },
+        "provisionPublicIP": {
+            "value": "Yes"
+        },
+        "declarationUrl": {
+            "value": "NOT_SPECIFIED"
+        },
+        "ntpServer": {
+            "value": "0.pool.ntp.org"
+        },
+        "timeZone": {
+            "value": "UTC"
+        },
+        "customImage": {
+            "value": "OPTIONAL"
+        },
+        "restrictedSrcAddress": {
+            "value": "*"
+        },
+        "tagValues": {
+            "value": {
+                "application": "APP",
+                "cost": "COST",
+                "environment": "ENV",
+                "group": "GROUP",
+                "owner": "OWNER"
+            }
+        },
+        "allowUsageAnalytics": {
+            "value": "Yes"
+        }
+    }
+}

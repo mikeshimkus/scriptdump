@@ -1,0 +1,56 @@
+{
+  "ap-east-1": {
+    "Best10000Mbps": "ami-caee95bb"
+  }, 
+  "ap-northeast-1": {
+    "Best10000Mbps": "ami-0c3e375f618118222"
+  }, 
+  "ap-northeast-2": {
+    "Best10000Mbps": "ami-00f3fdb7ec01a4b58"
+  }, 
+  "ap-south-1": {
+    "Best10000Mbps": "ami-0b986c12cb58948de"
+  }, 
+  "ap-southeast-1": {
+    "Best10000Mbps": "ami-0755df176a2f47cd4"
+  }, 
+  "ap-southeast-2": {
+    "Best10000Mbps": "ami-027bacda481dd9084"
+  }, 
+  "ca-central-1": {
+    "Best10000Mbps": "ami-014537407cfefc74a"
+  }, 
+  "eu-central-1": {
+    "Best10000Mbps": "ami-0a117b67531cd5a5d"
+  }, 
+  "eu-north-1": {
+    "Best10000Mbps": "ami-af1c97d1"
+  }, 
+  "eu-west-1": {
+    "Best10000Mbps": "ami-0fe46b895ef9e918d"
+  }, 
+  "eu-west-2": {
+    "Best10000Mbps": "ami-04b30597aa7589141"
+  }, 
+  "eu-west-3": {
+    "Best10000Mbps": "ami-0475c1d1cc3ffa81a"
+  }, 
+  "sa-east-1": {
+    "Best10000Mbps": "ami-040345fccf8d3186e"
+  }, 
+  "us-east-1": {
+    "Best10000Mbps": "ami-0becca9052792a937"
+  }, 
+  "us-east-2": {
+    "Best10000Mbps": "ami-0e173a77217b3cf23"
+  }, 
+  "us-gov-west-1": {
+    "Best10000Mbps": "ami-9d196ffc"
+  }, 
+  "us-west-1": {
+    "Best10000Mbps": "ami-04b3b6fb93d8adfa9"
+  }, 
+  "us-west-2": {
+    "Best10000Mbps": "ami-0c6010ef5ae3deb5e"
+  }
+}

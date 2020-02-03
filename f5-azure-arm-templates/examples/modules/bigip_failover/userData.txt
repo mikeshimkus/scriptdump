@@ -1,0 +1,42 @@
+#cloud-init
+
+write_files:
+  - path: /config/cloud/onboard_config.yaml
+    permissions: 0755
+    owner: root:root
+    content: |
+        runtime_parameters:
+          - name: 'INTERFACE_NAME'
+            type: url
+            url: http://169.254.169.254/metadata/interfaces
+            nestedData: '[0].name'
+          - name: 'TS_ACCESS_KEY'
+            type: vault
+            vaultProvider: KMS
+            key: my_ts_access_key
+          - name: 'LICENSE_KEY_1'
+            value: licenseKey1
+          - name: 'LICENSE_KEY_2'
+            value: licenseKey2
+    extension_packages:
+        install_operations:
+            - extensionType: DO
+            extensionVersion: 1.5.0
+            - extensionType: AS3
+            extensionVersion: 1.10.0
+            - extensionType: TS
+            extensionVersion: latest
+    extension_services:
+        service_operations:
+            - extensionType: DO
+            type: file
+            value: /config/cloud/do_declaration.json
+            - extensionType: AS3
+            type: url
+            value: !Ref AS3DeclarationUrl
+            - extensionType: TS
+            type: providerStorage
+            value: s3://TSDeclarationUrl.json
+runcmd:
+    curl --verify True https://github.com/F5Networks/f5-onboarder/1.0/install.sh | bash
+    f5-onboarder -c /config/cloud/onboard_config.yaml
