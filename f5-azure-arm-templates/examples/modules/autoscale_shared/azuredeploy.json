@@ -1,0 +1,76 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+    "location": {
+      "type": "string"
+    },
+    "newDataStorageAccountName": {
+      "type": "string"
+    },
+    "dataStorageAccountType": {
+      "type": "string"
+    },
+    "useCustomImage": {
+      "type": "bool"
+    },
+    "createNewCustomImage": {
+      "type": "bool"
+    },
+    "newCustomImageName": {
+      "type": "string"
+    },
+    "customImage": {
+      "type": "string"
+    },
+    "premiumInstanceArray": {
+      "type": "array"
+    },
+    "instanceType": {
+      "type": "string"
+    },
+    "tagValues": {
+      "type": "object"
+    }
+  },
+	"variables": {
+    "computeApiVersion": "2017-12-01",
+    "storageApiVersion": "2017-10-01"
+  },
+	"resources": [
+    {
+			"apiVersion": "[variables('storageApiVersion')]",
+			"kind": "Storage",
+			"location": "[parameters('location')]",
+			"name": "[parameters('newDataStorageAccountName')]",
+			"properties": {
+				"supportsHttpsTrafficOnly": true
+			},
+			"sku": {
+				"name": "[parameters('dataStorageAccountType')]",
+				"tier": "Standard"
+			},
+			"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+			"type": "Microsoft.Storage/storageAccounts"
+		},
+		{
+			"apiVersion": "[variables('computeApiVersion')]",
+			"condition": "[and(parameters('useCustomImage'), parameters('createNewCustomImage'))]",
+			"location": "[parameters('location')]",
+			"name": "[parameters('newCustomImageName')]",
+			"properties": {
+				"storageProfile": {
+					"osDisk": {
+						"blobUri": "[parameters('customImage')]",
+						"osState": "Generalized",
+						"osType": "Linux",
+						"storageAccountType": "[if(contains(parameters('premiumInstanceArray'), parameters('instanceType')), 'Premium_LRS', 'Standard_LRS')]"
+					}
+				}
+			},
+			"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+			"type": "Microsoft.Compute/images"
+		}
+	],
+	"outputs": {}
+}

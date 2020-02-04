@@ -1,0 +1,177 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+    "location": {
+      "type": "string"
+    },
+    "dnsLabel": {
+      "type": "string"
+    },
+    "customEmail": {
+      "type": "array"
+    },
+    "vmScaleSetMinCount": {
+      "type": "int"
+    },
+    "vmScaleSetMaxCount": {
+      "type": "int"
+    },
+    "scaleMetricMap": {
+      "type": "object"
+    },
+    "cpuMetricName": {
+      "type": "string"
+    },
+    "scaleOutTimeWindow": {
+      "type": "string"
+    },
+    "scaleInTimeWindow": {
+      "type": "string"
+    },
+    "throughputMetricName": {
+      "type": "string"
+    },
+    "vmssId": {
+      "type": "string"
+    },
+    "appInsights": {
+      "type": "string"
+    },
+    "appInsightsLocation": {
+      "type": "string"
+    },
+    "appInsightsName": {
+      "type": "string"
+    },
+    "tagValues": {
+      "type": "object"
+    }
+  },
+	"variables": {
+    "appInsightsApiVersion": "2015-04-01",
+    "appInsightsComponentsApiVersion": "2015-05-01"
+  },
+	"resources": [
+    {
+			"apiVersion": "[variables('appInsightsApiVersion')]",
+			"location": "[parameters('location')]",
+			"name": "[concat(parameters('dnsLabel'), '-autoscaleconfig')]",
+			"properties": {
+				"enabled": true,
+				"name": "[concat(parameters('dnsLabel'), '-autoscaleconfig')]",
+				"notifications": [{
+					"email": {
+						"customEmails": "[parameters('customEmail')]",
+						"sendToSubscriptionAdministrator": false,
+						"sendToSubscriptionCoAdministrators": false
+					},
+					"operation": "Scale",
+					"webhooks": []
+				}],
+				"profiles": [{
+					"capacity": {
+						"default": "[parameters('vmScaleSetMinCount')]",
+						"maximum": "[parameters('vmScaleSetMaxCount')]",
+						"minimum": "[parameters('vmScaleSetMinCount')]"
+					},
+					"name": "Profile1",
+					"rules": [{
+							"metricTrigger": {
+								"metricName": "[parameters('scaleMetricMap')[parameters('cpuMetricName')].metricName]",
+								"metricNamespace": "",
+								"metricResourceUri": "[parameters('scaleMetricMap')[parameters('cpuMetricName')].metricResourceUri]",
+								"operator": "GreaterThan",
+								"statistic": "Average",
+								"threshold": "[parameters('scaleMetricMap')[parameters('cpuMetricName')].thresholdOut]",
+								"timeAggregation": "Average",
+								"timeGrain": "PT1M",
+								"timeWindow": "[parameters('scaleOutTimeWindow')]"
+							},
+							"scaleAction": {
+								"cooldown": "PT1M",
+								"direction": "Increase",
+								"type": "ChangeCount",
+								"value": "1"
+							}
+						},
+						{
+							"metricTrigger": {
+								"metricName": "[parameters('scaleMetricMap')[parameters('cpuMetricName')].metricName]",
+								"metricNamespace": "",
+								"metricResourceUri": "[parameters('scaleMetricMap')[parameters('cpuMetricName')].metricResourceUri]",
+								"operator": "LessThan",
+								"statistic": "Average",
+								"threshold": "[parameters('scaleMetricMap')[parameters('cpuMetricName')].thresholdIn]",
+								"timeAggregation": "Average",
+								"timeGrain": "PT1M",
+								"timeWindow": "[parameters('scaleInTimeWindow')]"
+							},
+							"scaleAction": {
+								"cooldown": "PT1M",
+								"direction": "Decrease",
+								"type": "ChangeCount",
+								"value": "1"
+							}
+						},
+						{
+							"metricTrigger": {
+								"metricName": "[parameters('scaleMetricMap')[parameters('throughputMetricName')].metricName]",
+								"metricNamespace": "",
+								"metricResourceUri": "[parameters('scaleMetricMap')[parameters('throughputMetricName')].metricResourceUri]",
+								"operator": "GreaterThan",
+								"statistic": "Average",
+								"threshold": "[parameters('scaleMetricMap')[parameters('throughputMetricName')].thresholdOut]",
+								"timeAggregation": "Average",
+								"timeGrain": "PT1M",
+								"timeWindow": "[parameters('scaleOutTimeWindow')]"
+							},
+							"scaleAction": {
+								"cooldown": "PT1M",
+								"direction": "Increase",
+								"type": "ChangeCount",
+								"value": "1"
+							}
+						},
+						{
+							"metricTrigger": {
+								"metricName": "[parameters('scaleMetricMap')[parameters('throughputMetricName')].metricName]",
+								"metricNamespace": "",
+								"metricResourceUri": "[parameters('scaleMetricMap')[parameters('throughputMetricName')].metricResourceUri]",
+								"operator": "LessThan",
+								"statistic": "Average",
+								"threshold": "[parameters('scaleMetricMap')[parameters('throughputMetricName')].thresholdIn]",
+								"timeAggregation": "Average",
+								"timeGrain": "PT1M",
+								"timeWindow": "[parameters('scaleInTimeWindow')]"
+							},
+							"scaleAction": {
+								"cooldown": "PT1M",
+								"direction": "Decrease",
+								"type": "ChangeCount",
+								"value": "1"
+							}
+						}
+					]
+				}],
+				"targetResourceUri": "[parameters('vmssId')]"
+			},
+			"type": "Microsoft.Insights/autoscaleSettings"
+		},
+		{
+			"apiVersion": "[variables('appInsightsComponentsApiVersion')]",
+			"condition": "[contains(toUpper(parameters('appInsights')), 'CREATE_NEW')]",
+			"dependsOn": [],
+			"kind": "other",
+			"location": "[parameters('appInsightsLocation')]",
+			"name": "[parameters('appInsightsName')]",
+			"properties": {
+				"ApplicationId": "[parameters('appInsightsName')]",
+				"Application_Type": "other"
+			},
+			"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+			"type": "Microsoft.Insights/components"
+		}
+	],
+	"outputs": {}
+}
