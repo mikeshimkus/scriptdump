@@ -348,8 +348,8 @@
         }
     },
     "variables": {
-        "dODeclarationUrl": "[replace(parameters('customDoDeclarationUrl'), 'OPTIONAL', concat(parameters('templateBaseUrl'), 'templates/f5-azure-arm-templates/examples/modules/autoscale_bigip/do.json'))]",
-        "as3DeclarationUrl": "[replace(parameters('customAs3DeclarationUrl'), 'OPTIONAL', concat(parameters('templateBaseUrl'), 'templates/f5-azure-arm-templates/examples/modules/autoscale_bigip/as3.json'))]",
+        "dODeclarationUrl": "[replace(parameters('customDoDeclarationUrl'), 'OPTIONAL', concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/autoscale_bigip/do.json'))]",
+        "as3DeclarationUrl": "[replace(parameters('customAs3DeclarationUrl'), 'OPTIONAL', concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/autoscale_bigip/as3.json'))]",
         "bigIpNicPortMap": {
             "1": {
                 "Port": "[parameters('bigIpVersion')]"
