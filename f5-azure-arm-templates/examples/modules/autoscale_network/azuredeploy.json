@@ -179,7 +179,7 @@
 			"dependsOn": [
 				"[concat('Microsoft.Network/publicIPAddresses/', parameters('mgmtPublicIPAddressName'))]"
 			],
-			"location": "[variables('location')]",
+			"location": "[parameters('location')]",
 			"name": "[parameters('externalLoadBalancerName')]",
 			"properties": {
 				"backendAddressPools": [{
