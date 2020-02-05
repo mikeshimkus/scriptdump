@@ -16,6 +16,9 @@
       },    
       "serviceDiscoveryApiKey": {
         "type": "securestring"
+      },
+      "objectId": {
+        "type": "string"
       }
     },
     "variables": {
@@ -57,6 +60,22 @@
           "enabledForDiskEncryption": true,
           "enabledForTemplateDeployment": true,
           "tenantId": "[variables('tenantId')]",
+          "accessPolicies": [
+            {
+              "tenantId": "[variables('tenantId')]",
+              "objectId": "[parameters('objectId')]",
+              "permissions": {
+                "keys": [
+                  "list",
+                  "get"
+                ],
+                "secrets": [
+                  "list",
+                  "get"
+                ]
+              }
+            }
+          ],
           "sku": {
             "name": "standard",
             "family": "A"

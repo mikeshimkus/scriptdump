@@ -565,6 +565,7 @@
         "mgmtNsgID": "[resourceId('Microsoft.Network/networkSecurityGroups/',variables('mgmtNsgName'))]",    
         "keyVaultName": "[concat(variables('dnsLabel'), '-keyvault')]",
         "secretName": "[concat(variables('dnsLabel'), 'sdkey')]",
+        "objectId": "c8894742-b1e4-4dc1-b051-3307caadd846",
         "userAssignedIdentityName": "[concat(variables('dnsLabel'), '-useridentity')]",
         "serviceDiscoveryApiKey": "[replace(parameters('serviceDiscoveryApiKey'), 'OPTIONAL', '')]",
         "assignManagedIdentity": "[not(empty(variables('serviceDiscoveryApiKey')))]",
@@ -594,10 +595,11 @@
                 },
                 "parameters": {
                     "location":{ "value": "[variables('location')]" },
-                    "keyVaultName":{ "value": "[variables('keyVaultName')]" },                 
+                    "keyVaultName":{ "value": "[variables('keyVaultName')]" },
+                    "secretName":{ "value": "[variables('secretName')]" },
+                    "objectId":{ "value": "[variables('objectId')]" },                 
                     "userAssignedIdentityName":{ "value": "[variables('userAssignedIdentityName')]" }, 
-                    "serviceDiscoveryApiKey":{ "value": "[variables('serviceDiscoveryApiKey')]" },
-                    "secretName":{ "value": "[variables('secretName')]" }  
+                    "serviceDiscoveryApiKey":{ "value": "[variables('serviceDiscoveryApiKey')]" }                  
                 }
             }
         },
