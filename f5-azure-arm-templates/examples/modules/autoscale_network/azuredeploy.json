@@ -29,6 +29,12 @@
 		"mgmtSubnetPrefix": {
 			"type": "string"
 		},
+		"appSubnetName": {
+			"type": "string"
+		},
+		"appSubnetPrefix": {
+			"type": "string"
+		},
 		"tagValues": {
 			"type": "object"
 		}
@@ -43,7 +49,8 @@
 			"name": "[parameters('mgmtNsgName')]",
 			"condition": "[not(parameters('useExistingNsg'))]",
 			"properties": {
-				"securityRules": [{
+				"securityRules": [
+					{
 						"name": "mgmt_allow_https",
 						"properties": {
 							"access": "Allow",
@@ -147,6 +154,12 @@
                         "name": "[parameters('mgmtSubnetName')]",
                         "properties": {
                             "addressPrefix": "[parameters('mgmtSubnetPrefix')]"
+                        }
+					},
+					{
+                        "name": "[parameters('appSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('appSubnetPrefix')]"
                         }
                     }
                 ]

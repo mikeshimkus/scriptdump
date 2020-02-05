@@ -551,7 +551,8 @@
         "mgmtSubnetName": "mgmt",
         "mgmtSubnetId": "[concat(variables('vnetId'), '/subnets/', variables('mgmtSubnetName'))]", 
         "vnetAddressPrefix": "[concat(parameters('vnetAddressPrefix'),'.0.0/16')]",
-        "mgmtSubnetPrefix": "[concat(parameters('vnetAddressPrefix'), '.1.0/24')]", 
+        "mgmtSubnetPrefix": "[concat(parameters('vnetAddressPrefix'), '.1.0/24')]",
+        "appSubnetPrefix": "[concat(parameters('vnetAddressPrefix'), '.2.0/24')]",  
         "useExistingNsg": "[not(empty(replace(parameters('mgmtNsgName'), 'OPTIONAL', '')))]",
         "mgmtNsgName": "[if(variables('useExistingNsg'), parameters('mgmtNsgName'), concat(variables('dnsLabel'),'-mgmt-nsg'))]",
         "mgmtNsgID": "[resourceId('Microsoft.Network/networkSecurityGroups/',variables('mgmtNsgName'))]",   
@@ -575,9 +576,11 @@
                 "parameters": {
                     "location":{ "value": "[variables('location')]" },
                     "virtualNetworkName":{ "value": "[variables('virtualNetworkName')]" },
-                    "vnetAddressPrefix":{ "value": "[parameters('vnetAddressPrefix')]" },
+                    "vnetAddressPrefix":{ "value": "[variables('vnetAddressPrefix')]" },
                     "mgmtSubnetName":{ "value": "[variables('mgmtSubnetName')]" },
                     "mgmtSubnetPrefix":{ "value": "[variables('mgmtSubnetPrefix')]" },
+                    "appSubnetName":{ "value": "[variables('appSubnetName')]" },
+                    "appSubnetPrefix":{ "value": "[variables('appSubnetPrefix')]" },
                     "provisionPublicIP":{ "value": "[parameters('provisionPublicIP')]" },
                     "mgmtNsgName":{ "value": "[variables('mgmtNsgName')]" },
                     "useExistingNsg":{ "value": "[variables('useExistingNsg')]" },                                 
@@ -675,6 +678,9 @@
             "condition": "[equals(parameters('provisionApp'),'Yes')]",
             "apiVersion": "[variables('deploymentApiVersion')]",
             "name": "appTemplate",
+            "dependsOn": [
+                "networkTemplate"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
