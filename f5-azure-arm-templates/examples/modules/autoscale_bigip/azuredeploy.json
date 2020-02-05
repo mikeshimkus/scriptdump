@@ -112,13 +112,18 @@
         },
         "customEmail": {
 			"type": "array"
+        },
+        "assignManagedIdentity": {
+			"type": "bool"
+        },
+        "managedIdentityConfiguration": {
+			"type": "object"
         }
 	},
 	"variables": {
 		"computeApiVersion": "2017-12-01",
 		"appInsightsApiVersion": "2015-04-01",
-		"appInsightsComponentsApiVersion": "2015-05-01",
-		"singleQuote": "'"
+		"appInsightsComponentsApiVersion": "2015-05-01"
 	},
 	"resources": [
         {
@@ -143,7 +148,8 @@
 			"apiVersion": "[variables('computeApiVersion')]",
 			"location": "[parameters('location')]",
 			"name": "[parameters('vmssName')]",
-			"plan": "[if(parameters('useCustomImage'), json('null'), parameters('imagePlan'))]",
+            "plan": "[if(parameters('useCustomImage'), json('null'), parameters('imagePlan'))]",
+            "identity": "[if(parameters('assignManagedIdentity'), json('null'), parameters('managedIdentityConfiguration'))]",
 			"properties": {
 				"overprovision": false,
 				"upgradePolicy": {

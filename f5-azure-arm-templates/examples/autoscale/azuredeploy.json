@@ -313,6 +313,13 @@
             },
             "type": "string"
         },
+        "userAssignedIdentityName": {
+            "defaultValue": "OPTIONAL",
+            "metadata": {
+                "description": "If you would like to assign a user-managed identity to the VM Scale Set, specify it here."
+            },
+            "type": "string"
+        },
         "tagValues": {
             "defaultValue": {
                 "application": "APP",
@@ -555,7 +562,17 @@
         "appSubnetPrefix": "[concat(parameters('vnetAddressPrefix'), '.2.0/24')]",  
         "useExistingNsg": "[not(empty(replace(parameters('mgmtNsgName'), 'OPTIONAL', '')))]",
         "mgmtNsgName": "[if(variables('useExistingNsg'), parameters('mgmtNsgName'), concat(variables('dnsLabel'),'-mgmt-nsg'))]",
-        "mgmtNsgID": "[resourceId('Microsoft.Network/networkSecurityGroups/',variables('mgmtNsgName'))]",   
+        "mgmtNsgID": "[resourceId('Microsoft.Network/networkSecurityGroups/',variables('mgmtNsgName'))]",
+        "managedIdentity": "[replace(parameters('userAssignedIdentityName'), 'OPTIONAL', '')]",
+        "assignManagedIdentity": "[not(empty(variables('managedIdentity')))]",
+        "managedIdentityConfiguration": {
+            "identity": {
+                "type": "userAssigned",
+                "identityIds": [
+                    "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('userAssignedIdentityName'))]"
+                ]
+            }
+        },   
         "appSubnetName": "app",
         "mySqlPassword": "Ch@ng3m3!",
         "tagValues": "[parameters('tagValues')]"
@@ -669,6 +686,8 @@
                     "scaleOutTimeWindow":{ "value": "[variables('scaleOutTimeWindow')]" },
                     "scaleMetricMap":{ "value": "[variables('scaleMetricMap')]" },
                     "customEmail":{ "value": "[variables('customEmail')]" },
+                    "assignManagedIdentity":{ "value": "[variables('assignManagedIdentity')]" },
+                    "managedIdentityConfiguration":{ "value": "[variables('managedIdentityConfiguration')]" },
                     "tagValues":{ "value": "[variables('tagValues')]" }                                   
                 }
             }
