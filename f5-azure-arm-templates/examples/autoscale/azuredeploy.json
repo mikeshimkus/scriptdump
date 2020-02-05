@@ -551,8 +551,7 @@
         "lbTcpProbeNameHttps": "tcp_probe_https",
         "lbTcpProbeIdHttps": "[concat(variables('extLbId'),'/probes/',variables('lbTcpProbeNameHttps'))]",
         "publicIPAddressType": "Static",
-        "mgmtPublicIPAddressName": "[concat(variables('dnsLabel'), '-mgmt-pip')]",
-        "mgmtPublicIPAddressId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('mgmtPublicIPAddressName'))]",      
+        "mgmtPublicIPAddressName": "[concat(variables('dnsLabel'), '-mgmt-pip')]",      
         "virtualNetworkName": "[concat(variables('dnsLabel'), '-vnet')]",
         "vnetId": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
         "mgmtSubnetName": "mgmt",
@@ -607,8 +606,6 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "[variables('deploymentApiVersion')]",
             "name": "networkTemplate",
-            "dependsOn": [
-            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -651,7 +648,6 @@
                     "externalLoadBalancerName":{ "value": "[variables('externalLoadBalancerName')]" },
                     "publicIPAddressType":{ "value": "[variables('publicIPAddressType')]" },
                     "mgmtPublicIPAddressName":{ "value": "[variables('mgmtPublicIPAddressName')]" },
-                    "mgmtPublicIPAddressId":{ "value": "[variables('mgmtPublicIPAddressId')]" },                    
                     "frontEndIPConfigID":{ "value": "[variables('frontEndIPConfigID')]" },
                     "lbTcpProbeIdHttp":{ "value": "[variables('lbTcpProbeIdHttp')]" },
                     "lbTcpProbeIdHttps":{ "value": "[variables('lbTcpProbeIdHttps')]" },
@@ -748,11 +744,11 @@
     "outputs": {
         "GUI-URL": {
             "type": "string",
-            "value": "[concat('https://',reference(variables('mgmtPublicIPAddressId'), variables('networkApiVersion')).dnsSettings.fqdn,':50101', ' - 50200')]"
-        },
+            "value": "[reference('dagTemplate').outputs.GUI-URL.value]"
+          },
         "SSH-URL": {
             "type": "string",
-            "value": "[concat(reference(variables('mgmtPublicIPAddressId'), variables('networkApiVersion')).dnsSettings.fqdn,' ',50001, ' - 50100')]"
+            "value": "[reference('dagTemplate').outputs.SSH-URL.value]"
         }
     }
 }

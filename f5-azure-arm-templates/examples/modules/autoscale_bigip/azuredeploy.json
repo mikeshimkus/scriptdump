@@ -149,7 +149,7 @@
 			"location": "[parameters('location')]",
 			"name": "[parameters('vmssName')]",
             "plan": "[if(parameters('useCustomImage'), json('null'), parameters('imagePlan'))]",
-            "identity": "[if(parameters('assignManagedIdentity'), json('null'), parameters('managedIdentityConfiguration'))]",
+            "identity": "[if(parameters('assignManagedIdentity'), parameters('managedIdentityConfiguration'), json('null'))]",
 			"properties": {
 				"overprovision": false,
 				"upgradePolicy": {
