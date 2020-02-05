@@ -313,12 +313,12 @@
             },
             "type": "string"
         },
-        "userAssignedIdentityName": {
+        "serviceDiscoveryApiKey": {
             "defaultValue": "OPTIONAL",
             "metadata": {
-                "description": "If you would like to assign a user-managed identity to the VM Scale Set, specify it here."
+                "description": "If you would like to automatically discover service nodes, specify the Azure service principal access key with appropriate permissions here."
             },
-            "type": "string"
+            "type": "securestring"
         },
         "tagValues": {
             "defaultValue": {
@@ -562,14 +562,17 @@
         "appSubnetPrefix": "[concat(parameters('vnetAddressPrefix'), '.2.0/24')]",  
         "useExistingNsg": "[not(empty(replace(parameters('mgmtNsgName'), 'OPTIONAL', '')))]",
         "mgmtNsgName": "[if(variables('useExistingNsg'), parameters('mgmtNsgName'), concat(variables('dnsLabel'),'-mgmt-nsg'))]",
-        "mgmtNsgID": "[resourceId('Microsoft.Network/networkSecurityGroups/',variables('mgmtNsgName'))]",
-        "managedIdentity": "[replace(parameters('userAssignedIdentityName'), 'OPTIONAL', '')]",
-        "assignManagedIdentity": "[not(empty(variables('managedIdentity')))]",
+        "mgmtNsgID": "[resourceId('Microsoft.Network/networkSecurityGroups/',variables('mgmtNsgName'))]",    
+        "keyVaultName": "[concat(variables('dnsLabel'), '-keyvault')]",
+        "secretName": "[concat(variables('dnsLabel'), 'sdkey')]",
+        "userAssignedIdentityName": "[concat(variables('dnsLabel'), '-useridentity')]",
+        "serviceDiscoveryApiKey": "[replace(parameters('serviceDiscoveryApiKey'), 'OPTIONAL', '')]",
+        "assignManagedIdentity": "[not(empty(variables('serviceDiscoveryApiKey')))]",
         "managedIdentityConfiguration": {
             "identity": {
                 "type": "userAssigned",
                 "identityIds": [
-                    "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('userAssignedIdentityName'))]"
+                    "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('userAssignedIdentityName'))]"
                 ]
             }
         },   
@@ -578,6 +581,26 @@
         "tagValues": "[parameters('tagValues')]"
     },
     "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('deploymentApiVersion')]",
+            "condition": "[variables('assignManagedIdentity')]",
+            "name": "accessTemplate",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/autoscale_access/azuredeploy.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location":{ "value": "[variables('location')]" },
+                    "keyVaultName":{ "value": "[variables('keyVaultName')]" },                 
+                    "userAssignedIdentityName":{ "value": "[variables('userAssignedIdentityName')]" }, 
+                    "serviceDiscoveryApiKey":{ "value": "[variables('serviceDiscoveryApiKey')]" },
+                    "secretName":{ "value": "[variables('secretName')]" }  
+                }
+            }
+        },
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "[variables('deploymentApiVersion')]",
@@ -641,7 +664,8 @@
             "apiVersion": "[variables('deploymentApiVersion')]",
             "name": "bigipTemplate",
             "dependsOn": [
-                "dagTemplate"
+                "dagTemplate",
+                "accessTemplate"
             ],
             "properties": {
                 "mode": "Incremental",
