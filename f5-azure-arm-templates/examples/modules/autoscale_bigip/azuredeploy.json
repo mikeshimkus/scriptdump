@@ -1,165 +1,345 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "sshKey": {
-            "type": "string"
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"location": {
+			"type": "string"
         },
-        "adminUsername": {
-            "type": "string"
-        },
-        "location": {
-            "type": "string"
-        },
-        "vmssName": {
-            "type": "string"
-        },
-        "useCustomImage": {
-            "type": "bool"
-        },
-        "imagePlan": {
-            "type": "object"
-        },
-        "loadBalancerBackendAddressPoolsArray": {
-            "type": "array"
-        },
-        "attachInternalLoadBalancer": {
-            "type": "bool"
-        },
+        "dnsLabel": {
+			"type": "string"
+		},
         "subscriptionID": {
-            "type": "string"
+			"type": "string"
+		},
+		"sshKey": {
+			"type": "string"
+		},
+		"adminUsername": {
+			"type": "string"
+		},
+		"useCustomImage": {
+			"type": "bool"
+		},
+		"createNewCustomImage": {
+			"type": "bool"
+		},
+		"newCustomImageName": {
+			"type": "string"
+		},
+		"customImage": {
+			"type": "string"
+		},
+		"premiumInstanceArray": {
+			"type": "array"
+		},
+		"instanceType": {
+			"type": "string"
+		},
+		"imagePlan": {
+			"type": "object"
+		},
+		"loadBalancerBackendAddressPoolsArray": {
+			"type": "array"
         },
         "externalLoadBalancerName": {
-            "type": "string"
+			"type": "string"
+		},
+		"attachInternalLoadBalancer": {
+			"type": "bool"
+		},		
+		"provisionPublicIP": {
+			"type": "string"
+		},
+		"publicIpAddressConfiguration": {
+			"type": "object"
+		},
+		"mgmtNsgId": {
+			"type": "string"
+		},
+		"mgmtSubnetId": {
+			"type": "string"
+		},
+		"storageProfileArray": {
+			"type": "object"
+		},
+		"tagValues": {
+			"type": "object"
+		},
+		"useAvailabilityZones": {
+			"type": "bool"
+		},
+		"dODeclarationUrl": {
+			"type": "string"
+		},
+		"as3DeclarationUrl": {
+			"type": "string"
+		},				
+        "vmssName": {
+			"type": "string"
+		},
+        "vmssId": {
+			"type": "string"
+		},
+		"vmScaleSetMinCount": {
+			"type": "int"
+		},
+		"vmScaleSetMaxCount": {
+			"type": "int"
+		},
+		"scaleMetricMap": {
+			"type": "object"
+		},
+		"cpuMetricName": {
+			"type": "string"
+		},
+		"scaleOutTimeWindow": {
+			"type": "string"
+		},
+		"scaleInTimeWindow": {
+			"type": "string"
+		},
+		"throughputMetricName": {
+			"type": "string"
+		},		
+		"appInsights": {
+			"type": "string"
+		},
+		"appInsightsLocation": {
+			"type": "string"
+		},
+		"appInsightsName": {
+			"type": "string"
         },
-        "provisionPublicIP": {
-            "type": "string"
-        },
-        "publicIpAddressConfiguration": {
-            "type": "object"
-        },
-        "mgmtNsgId": {
-            "type": "string"
-        },
-        "mgmtSubnetId": {
-            "type": "string"
-        },
-        "storageProfileArray": {
-            "type": "object"
-        },
-        "vmScaleSetMinCount": {
-            "type": "int"
-        },
-        "instanceType": {
-            "type": "string"
-        },
-        "tagValues": {
-            "type": "object"
-        },
-        "useAvailabilityZones": {
-            "type": "bool"
-        },
-        "dODeclarationUrl": {
-            "type": "string"
-        },
-        "as3DeclarationUrl": {
-            "type": "string"
+        "customEmail": {
+			"type": "array"
         }
-    },
-    "variables": {
-        "computeApiVersion": "2017-12-01",
-        "singleQuote": "'"
-    },
-    "resources": [
+	},
+	"variables": {
+		"computeApiVersion": "2017-12-01",
+		"appInsightsApiVersion": "2015-04-01",
+		"appInsightsComponentsApiVersion": "2015-05-01",
+		"singleQuote": "'"
+	},
+	"resources": [
         {
-            "apiVersion": "[variables('computeApiVersion')]",
-            "location": "[parameters('location')]",
-            "name": "[parameters('vmssName')]",
-            "plan": "[if(parameters('useCustomImage'), json('null'), parameters('imagePlan'))]",
-            "properties": {
-                "overprovision": false,
-                "upgradePolicy": {
-                    "mode": "Manual"
-                },
-                "virtualMachineProfile": {
-                    "networkProfile": {
-                        "networkInterfaceConfigurations": [
-                            {
-                                "name": "nic1",
-                                "properties": {
-                                    "ipConfigurations": [
-                                        {
-                                            "name": "ipconfig1",
-                                            "properties": {
-                                                "loadBalancerBackendAddressPools": "[take(parameters('loadBalancerBackendAddressPoolsArray'), if(parameters('attachInternalLoadBalancer'), 2, 1))]",
-                                                "loadBalancerInboundNatPools": [
-                                                    {
-                                                        "id": "[concat('/subscriptions/', parameters('subscriptionID'),'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', parameters('externalLoadBalancerName'), '/inboundNatPools/sshnatpool')]"
-                                                    },
-                                                    {
-                                                        "id": "[concat('/subscriptions/', parameters('subscriptionID'),'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', parameters('externalLoadBalancerName'), '/inboundNatPools/mgmtnatpool')]"
-                                                    }
-                                                ],
-                                                "publicIpAddressConfiguration": "[if(equals(toLower(parameters('provisionPublicIP')), 'no'), json('null'), parameters('publicIpAddressConfiguration'))]",
-                                                "subnet": {
-                                                    "id": "[parameters('mgmtSubnetId')]"
-                                                }
-                                            }
-                                        }
-                                    ],
-                                    "networkSecurityGroup": {
-                                        "id": "[parameters('mgmtNsgID')]"
-                                    },
-                                    "primary": true
-                                }
-                            }
-                        ]
-                    },
-                    "osProfile": {
-                        "adminUsername": "[parameters('adminUsername')]",
-                        "computerNamePrefix": "[parameters('vmssName')]",
-                        "linuxConfiguration": {
-                            "disablePasswordAuthentication": true,
-                            "ssh": {
-                                "publicKeys": [
-                                    {
-                                        "keyData": "[parameters('sshKey')]",
-                                        "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]"
-                                    }
-                                ]
-                            }
-                        },
-                        "customData": "[base64(concat('runtime_parameters: []\nextension_packages:\n  install_operations:\n    - extensionType: do\n      extensionVersion: 1.5.0\n    - extensionType: as3\n      extensionVersion: 3.13.0\nextension_services:\n    service_operations:\n      - extensionType: do\n        type: url\n        value: ', parameters('dODeclarationUrl'),'\n      - extensionType: as3\n        type: url\n        value: ', parameters('as3DeclarationUrl'),''))]"
-                    },
-                    "storageProfile": "[if(parameters('useCustomImage'), parameters('storageProfileArray').customImage, parameters('storageProfileArray').platformImage)]",
-                    "extensionProfile": {
-                        "extensions": [
-                            {
-                                "name": "onboarder",
-                                "properties": {
-                                    "publisher": "Microsoft.Azure.Extensions",
-                                    "type": "CustomScript",
-                                    "typeHandlerVersion": "2.0",
-                                    "autoUpgradeMinorVersion": true,
-                                    "settings": {
-                                        "commandToExecute": "mkdir -p /config/cloud; cp /var/lib/waagent/CustomData /config/cloud/onboard_config.yaml; curl https://raw.githubusercontent.com/edwoodjrjr/scriptdump/master/solution-scripts/install.sh | bash; f5-cloud-onboarder -c /config/cloud/onboard_config.yaml"
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                }
-            },
-            "sku": {
-                "capacity": "[parameters('vmScaleSetMinCount')]",
-                "name": "[parameters('instanceType')]",
-                "tier": "Standard"
-            },
-            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-            "zones": "[if(parameters('useAvailabilityZones'), createArray(1, 2, 3), json('null'))]",
-            "type": "Microsoft.Compute/virtualMachineScaleSets"
-        }
-    ],
-    "outputs": {
-    }
-  }
+			"apiVersion": "[variables('computeApiVersion')]",
+			"condition": "[and(parameters('useCustomImage'), parameters('createNewCustomImage'))]",
+			"location": "[parameters('location')]",
+			"name": "[parameters('newCustomImageName')]",
+			"properties": {
+				"storageProfile": {
+					"osDisk": {
+						"blobUri": "[parameters('customImage')]",
+						"osState": "Generalized",
+						"osType": "Linux",
+						"storageAccountType": "[if(contains(parameters('premiumInstanceArray'), parameters('instanceType')), 'Premium_LRS', 'Standard_LRS')]"
+					}
+				}
+			},
+			"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+			"type": "Microsoft.Compute/images"
+		},
+		{
+			"apiVersion": "[variables('computeApiVersion')]",
+			"location": "[parameters('location')]",
+			"name": "[parameters('vmssName')]",
+			"plan": "[if(parameters('useCustomImage'), json('null'), parameters('imagePlan'))]",
+			"properties": {
+				"overprovision": false,
+				"upgradePolicy": {
+					"mode": "Manual"
+				},
+				"virtualMachineProfile": {
+					"networkProfile": {
+						"networkInterfaceConfigurations": [{
+							"name": "nic1",
+							"properties": {
+								"ipConfigurations": [{
+									"name": "ipconfig1",
+									"properties": {
+										"loadBalancerBackendAddressPools": "[take(parameters('loadBalancerBackendAddressPoolsArray'), if(parameters('attachInternalLoadBalancer'), 2, 1))]",
+										"loadBalancerInboundNatPools": [{
+												"id": "[concat('/subscriptions/', parameters('subscriptionID'),'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', parameters('externalLoadBalancerName'), '/inboundNatPools/sshnatpool')]"
+											},
+											{
+												"id": "[concat('/subscriptions/', parameters('subscriptionID'),'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', parameters('externalLoadBalancerName'), '/inboundNatPools/mgmtnatpool')]"
+											}
+										],
+										"publicIpAddressConfiguration": "[if(equals(toLower(parameters('provisionPublicIP')), 'no'), json('null'), parameters('publicIpAddressConfiguration'))]",
+										"subnet": {
+											"id": "[parameters('mgmtSubnetId')]"
+										}
+									}
+								}],
+								"networkSecurityGroup": {
+									"id": "[parameters('mgmtNsgID')]"
+								},
+								"primary": true
+							}
+						}]
+					},
+					"osProfile": {
+						"adminUsername": "[parameters('adminUsername')]",
+						"computerNamePrefix": "[parameters('vmssName')]",
+						"linuxConfiguration": {
+							"disablePasswordAuthentication": true,
+							"ssh": {
+								"publicKeys": [{
+									"keyData": "[parameters('sshKey')]",
+									"path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]"
+								}]
+							}
+						},
+						"customData": "[base64(concat('runtime_parameters: []\nextension_packages:\n  install_operations:\n    - extensionType: do\n      extensionVersion: 1.5.0\n    - extensionType: as3\n      extensionVersion: 3.13.0\nextension_services:\n    service_operations:\n      - extensionType: do\n        type: url\n        value: ', parameters('dODeclarationUrl'),'\n      - extensionType: as3\n        type: url\n        value: ', parameters('as3DeclarationUrl'),''))]"
+					},
+					"storageProfile": "[if(parameters('useCustomImage'), parameters('storageProfileArray').customImage, parameters('storageProfileArray').platformImage)]",
+					"extensionProfile": {
+						"extensions": [{
+							"name": "onboarder",
+							"properties": {
+								"publisher": "Microsoft.Azure.Extensions",
+								"type": "CustomScript",
+								"typeHandlerVersion": "2.0",
+								"autoUpgradeMinorVersion": true,
+								"settings": {
+									"commandToExecute": "mkdir -p /config/cloud; cp /var/lib/waagent/CustomData /config/cloud/onboard_config.yaml; curl https://raw.githubusercontent.com/edwoodjrjr/scriptdump/master/solution-scripts/install.sh | bash; f5-cloud-onboarder -c /config/cloud/onboard_config.yaml"
+								}
+							}
+						}]
+					}
+				}
+			},
+			"sku": {
+				"capacity": "[parameters('vmScaleSetMinCount')]",
+				"name": "[parameters('instanceType')]",
+				"tier": "Standard"
+			},
+			"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+			"zones": "[if(parameters('useAvailabilityZones'), createArray(1, 2, 3), json('null'))]",
+			"type": "Microsoft.Compute/virtualMachineScaleSets"
+		},
+		{
+            "apiVersion": "[variables('appInsightsApiVersion')]",
+            "dependsOn": [
+                "[parameters('vmssId')]"
+            ],
+			"location": "[parameters('location')]",
+			"name": "[concat(parameters('dnsLabel'), '-autoscaleconfig')]",
+			"properties": {
+				"enabled": true,
+				"name": "[concat(parameters('dnsLabel'), '-autoscaleconfig')]",
+				"notifications": [{
+					"email": {
+						"customEmails": "[parameters('customEmail')]",
+						"sendToSubscriptionAdministrator": false,
+						"sendToSubscriptionCoAdministrators": false
+					},
+					"operation": "Scale",
+					"webhooks": []
+				}],
+				"profiles": [{
+					"capacity": {
+						"default": "[parameters('vmScaleSetMinCount')]",
+						"maximum": "[parameters('vmScaleSetMaxCount')]",
+						"minimum": "[parameters('vmScaleSetMinCount')]"
+					},
+					"name": "Profile1",
+					"rules": [{
+							"metricTrigger": {
+								"metricName": "[parameters('scaleMetricMap')[parameters('cpuMetricName')].metricName]",
+								"metricNamespace": "",
+								"metricResourceUri": "[parameters('scaleMetricMap')[parameters('cpuMetricName')].metricResourceUri]",
+								"operator": "GreaterThan",
+								"statistic": "Average",
+								"threshold": "[parameters('scaleMetricMap')[parameters('cpuMetricName')].thresholdOut]",
+								"timeAggregation": "Average",
+								"timeGrain": "PT1M",
+								"timeWindow": "[parameters('scaleOutTimeWindow')]"
+							},
+							"scaleAction": {
+								"cooldown": "PT1M",
+								"direction": "Increase",
+								"type": "ChangeCount",
+								"value": "1"
+							}
+						},
+						{
+							"metricTrigger": {
+								"metricName": "[parameters('scaleMetricMap')[parameters('cpuMetricName')].metricName]",
+								"metricNamespace": "",
+								"metricResourceUri": "[parameters('scaleMetricMap')[parameters('cpuMetricName')].metricResourceUri]",
+								"operator": "LessThan",
+								"statistic": "Average",
+								"threshold": "[parameters('scaleMetricMap')[parameters('cpuMetricName')].thresholdIn]",
+								"timeAggregation": "Average",
+								"timeGrain": "PT1M",
+								"timeWindow": "[parameters('scaleInTimeWindow')]"
+							},
+							"scaleAction": {
+								"cooldown": "PT1M",
+								"direction": "Decrease",
+								"type": "ChangeCount",
+								"value": "1"
+							}
+						},
+						{
+							"metricTrigger": {
+								"metricName": "[parameters('scaleMetricMap')[parameters('throughputMetricName')].metricName]",
+								"metricNamespace": "",
+								"metricResourceUri": "[parameters('scaleMetricMap')[parameters('throughputMetricName')].metricResourceUri]",
+								"operator": "GreaterThan",
+								"statistic": "Average",
+								"threshold": "[parameters('scaleMetricMap')[parameters('throughputMetricName')].thresholdOut]",
+								"timeAggregation": "Average",
+								"timeGrain": "PT1M",
+								"timeWindow": "[parameters('scaleOutTimeWindow')]"
+							},
+							"scaleAction": {
+								"cooldown": "PT1M",
+								"direction": "Increase",
+								"type": "ChangeCount",
+								"value": "1"
+							}
+						},
+						{
+							"metricTrigger": {
+								"metricName": "[parameters('scaleMetricMap')[parameters('throughputMetricName')].metricName]",
+								"metricNamespace": "",
+								"metricResourceUri": "[parameters('scaleMetricMap')[parameters('throughputMetricName')].metricResourceUri]",
+								"operator": "LessThan",
+								"statistic": "Average",
+								"threshold": "[parameters('scaleMetricMap')[parameters('throughputMetricName')].thresholdIn]",
+								"timeAggregation": "Average",
+								"timeGrain": "PT1M",
+								"timeWindow": "[parameters('scaleInTimeWindow')]"
+							},
+							"scaleAction": {
+								"cooldown": "PT1M",
+								"direction": "Decrease",
+								"type": "ChangeCount",
+								"value": "1"
+							}
+						}
+					]
+				}],
+				"targetResourceUri": "[parameters('vmssId')]"
+			},
+			"type": "Microsoft.Insights/autoscaleSettings"
+		},
+		{
+			"apiVersion": "[variables('appInsightsComponentsApiVersion')]",
+			"condition": "[contains(toUpper(parameters('appInsights')), 'CREATE_NEW')]",
+			"dependsOn": [],
+			"kind": "other",
+			"location": "[parameters('appInsightsLocation')]",
+			"name": "[parameters('appInsightsName')]",
+			"properties": {
+				"ApplicationId": "[parameters('appInsightsName')]",
+				"Application_Type": "other"
+			},
+			"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+			"type": "Microsoft.Insights/components"
+		}
+	],
+	"outputs": {}
+}

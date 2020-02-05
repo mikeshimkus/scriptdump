@@ -2,82 +2,41 @@
 	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-    "location": {
-      "type": "string"
-    },
-    "mgmtPublicIPAddressName": {
-      "type": "string"
-    },
-    "dnsLabel": {
-      "type": "string"
-    },
-    "publicIPAddressType": {
-      "type": "string"
-    },
-    "mgmtNsgName": {
-      "type": "string"
-    },
-    "useExistingNsg": {
-      "type": "bool"
-    },
-    "bigIpMgmtPort": {
-      "type": "int"
-    },
-    "restrictedSrcAddress": {
-      "type": "string"
-    },
-    "provisionPublicIP": {
-      "type": "string"
-    },
-    "useExistingLoadBalancer": {
-      "type": "bool"
-    },
-    "externalLoadBalancerName": {
-      "type": "string"
-    },
-    "mgmtPublicIPAddressId": {
-      "type": "string"
-    },
-    "frontEndIPConfigID": {
-      "type": "string"
-    },
-    "lbTcpProbeIdHttp": {
-      "type": "string"
-    },
-    "lbTcpProbeIdHttps": {
-      "type": "string"
-    },
-    "lbTcpProbeNameHttp": {
-      "type": "string"
-    },
-    "lbTcpProbeNameHttps": {
-      "type": "string"
-    },
-    "tagValues": {
-      "type": "object"
-    }
-  },
-	"variables": {
-    "networkApiVersion": "2017-11-01"
-  },
-	"resources": [
-    {
-			"apiVersion": "[variables('networkApiVersion')]",
-			"sku": {
-				"name": "Standard"
-			},
-			"location": "[parameters('location')]",
-			"name": "[parameters('mgmtPublicIPAddressName')]",
-			"properties": {
-				"dnsSettings": {
-					"domainNameLabel": "[parameters('dnsLabel')]"
-				},
-				"idleTimeoutInMinutes": 30,
-				"publicIPAllocationMethod": "[parameters('publicIPAddressType')]"
-			},
-			"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-			"type": "Microsoft.Network/publicIPAddresses"
+		"location": {
+			"type": "string"
 		},
+		"mgmtNsgName": {
+			"type": "string"
+		},
+		"useExistingNsg": {
+			"type": "bool"
+		},
+		"restrictedSrcAddress": {
+			"type": "string"
+		},
+		"provisionPublicIP": {
+			"type": "string"
+		},
+		"virtualNetworkName": {
+			"type": "string"
+		},
+		"vnetAddressPrefix": {
+			"type": "string"
+		},
+		"mgmtSubnetName": {
+			"type": "string"
+		},
+		"mgmtSubnetPrefix": {
+			"type": "string"
+		},
+		"tagValues": {
+			"type": "object"
+		}
+	},
+	"variables": {
+    	"networkApiVersion": "2017-11-01"
+  	},
+	"resources": [
 		{
 			"apiVersion": "[variables('networkApiVersion')]",
 			"location": "[parameters('location')]",
@@ -90,7 +49,7 @@
 							"access": "Allow",
 							"description": "",
 							"destinationAddressPrefix": "*",
-							"destinationPortRange": "[parameters('bigIpMgmtPort')]",
+							"destinationPortRange": "8443",
 							"direction": "Inbound",
 							"priority": 101,
 							"protocol": "Tcp",
@@ -174,113 +133,27 @@
 			"type": "Microsoft.Network/networkSecurityGroups"
 		},
 		{
-			"apiVersion": "[variables('networkApiVersion')]",
-			"condition": "[not(parameters('useExistingLoadBalancer'))]",
-			"dependsOn": [
-				"[concat('Microsoft.Network/publicIPAddresses/', parameters('mgmtPublicIPAddressName'))]"
-			],
-			"location": "[parameters('location')]",
-			"name": "[parameters('externalLoadBalancerName')]",
-			"properties": {
-				"backendAddressPools": [{
-					"name": "loadBalancerBackEnd"
-				}],
-				"frontendIPConfigurations": [{
-					"name": "loadBalancerFrontEnd",
-					"properties": {
-						"publicIPAddress": {
-							"id": "[parameters('mgmtPublicIPAddressId')]"
-						}
-					}
-				}],
-				"inboundNatPools": [{
-						"name": "sshnatpool",
-						"properties": {
-							"backendPort": 22,
-							"frontendIPConfiguration": {
-								"id": "[parameters('frontEndIPConfigID')]"
-							},
-							"frontendPortRangeEnd": 50100,
-							"frontendPortRangeStart": 50001,
-							"protocol": "Tcp"
-						}
-					},
-					{
-						"name": "mgmtnatpool",
-						"properties": {
-							"backendPort": "[parameters('bigIpMgmtPort')]",
-							"frontendIPConfiguration": {
-								"id": "[parameters('frontEndIPConfigID')]"
-							},
-							"frontendPortRangeEnd": 50200,
-							"frontendPortRangeStart": 50101,
-							"protocol": "Tcp"
-						}
-					}
-				],
-				"loadBalancingRules": [{
-						"Name": "app-http",
-						"properties": {
-							"backendAddressPool": {
-								"id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('externalLoadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
-							},
-							"backendPort": 80,
-							"frontendIPConfiguration": {
-								"id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('externalLoadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
-							},
-							"frontendPort": 80,
-							"idleTimeoutInMinutes": 15,
-							"probe": {
-								"id": "[parameters('lbTcpProbeIdHttp')]"
-							},
-							"protocol": "Tcp"
-						}
-					},
-					{
-						"Name": "app-https",
-						"properties": {
-							"backendAddressPool": {
-								"id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('externalLoadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
-							},
-							"backendPort": 443,
-							"frontendIPConfiguration": {
-								"id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('externalLoadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
-							},
-							"frontendPort": 443,
-							"idleTimeoutInMinutes": 15,
-							"probe": {
-								"id": "[parameters('lbTcpProbeIdHttps')]"
-							},
-							"protocol": "Tcp"
-						}
-					}
-				],
-				"probes": [{
-						"name": "[parameters('lbTcpProbeNameHttp')]",
-						"properties": {
-							"intervalInSeconds": 15,
-							"numberOfProbes": 3,
-							"port": 80,
-							"protocol": "Tcp"
-						}
-					},
-					{
-						"name": "[parameters('lbTcpProbeNameHttps')]",
-						"properties": {
-							"intervalInSeconds": 15,
-							"numberOfProbes": 3,
-							"port": 443,
-							"protocol": "Tcp"
-						}
-					}
-				]
-			},
-			"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-			"sku": {
-				"name": "Standard"
-			},
-			"type": "Microsoft.Network/loadBalancers"
-		}
+            "apiVersion": "[variables('networkApiVersion')]",
+            "location": "[parameters('location')]",
+            "name": "[parameters('virtualNetworkName')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('vnetAddressPrefix')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[parameters('mgmtSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('mgmtSubnetPrefix')]"
+                        }
+                    }
+                ]
+            },
+            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+            "type": "Microsoft.Network/virtualNetworks"
+        }
 	],
 	"outputs": {}
 }
