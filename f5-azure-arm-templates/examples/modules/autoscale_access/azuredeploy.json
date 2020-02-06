@@ -1,101 +1,100 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-      "location": {
-        "type": "string"
-      },
-      "keyVaultName": {
-        "type": "string"
-      },
-      "secretName": {
-        "type": "string"
-      },
-      "userAssignedIdentityName": {
-        "type": "string"
-      },    
-      "serviceDiscoveryApiKey": {
-        "type": "securestring"
-      }
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
     },
-    "variables": {
-      "identityApiVersion": "2018-11-30",
-      "keyVaultApiVersion": "2018-02-14",
-      "roleAssignmentApiVersion": "2018-09-01-preview",
-      "tenantId": "[subscription().tenantId]",
-      "bootstrapRoleAssignmentId": "[guid(concat(resourceGroup().id, 'contributor'))]",
-      "contributorRoleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
+    "keyVaultName": {
+      "type": "string"
     },
-    "resources": [
-      {
-        "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-        "name": "[parameters('userAssignedIdentityName')]",
-        "apiVersion": "[variables('identityApiVersion')]",
-        "location": "[parameters('location')]"
-      },
-      {
-        "type": "Microsoft.Authorization/roleAssignments",
-        "apiVersion": "[variables('roleAssignmentApiVersion')]",
-        "name": "[variables('bootstrapRoleAssignmentId')]",
-        "dependsOn": [
-            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName'))]"
-        ],
-        "properties": {
-            "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
-            "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName')), variables('identityApiVersion')).principalId]",
-            "scope": "[resourceGroup().id]",
-            "principalType": "ServicePrincipal"
-        }
-      },
-      {
-        "type": "Microsoft.KeyVault/vaults",
-        "name": "[parameters('keyVaultName')]",
-        "apiVersion": "[variables('keyVaultApiVersion')]",
-        "location": "[parameters('location')]",
-        "properties": {
-          "enabledForDeployment": true,
-          "enabledForDiskEncryption": true,
-          "enabledForTemplateDeployment": true,
-          "tenantId": "[variables('tenantId')]",
-          "accessPolicies": [
-            {
-              "tenantId": "[variables('tenantId')]",
-              "objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName')), variables('identityApiVersion')).principalId]",
-              "permissions": {
-                "keys": [
-                  "list",
-                  "get"
-                ],
-                "secrets": [
-                  "list",
-                  "get"
-                ]
-              }
-            }
-          ],
-          "sku": {
-            "name": "standard",
-            "family": "A"
-          },
-          "networkAcls": {
-              "defaultAction": "Allow",
-              "bypass": "AzureServices"
-          }
-        }
-      },
-      {
-        "type": "Microsoft.KeyVault/vaults/secrets",
-        "name": "[concat(parameters('keyVaultName'), '/', parameters('secretName'))]",
-        "apiVersion": "[variables('keyVaultApiVersion')]",
-        "location": "[parameters('location')]",
-        "dependsOn": [
-          "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-        ],
-        "properties": {
-          "value": "[parameters('serviceDiscoveryApiKey')]"
-        }
-      }
-    ],
-    "outputs": {
+    "secretName": {
+      "type": "string"
+    },
+    "userAssignedIdentityName": {
+      "type": "string"
+    },    
+    "serviceDiscoveryApiKey": {
+      "type": "securestring"
     }
+  },
+  "variables": {
+    "identityApiVersion": "2018-11-30",
+    "keyVaultApiVersion": "2018-02-14",
+    "roleAssignmentApiVersion": "2018-09-01-preview",
+    "tenantId": "[subscription().tenantId]",
+    "bootstrapRoleAssignmentId": "[guid(concat(resourceGroup().id, 'contributor'))]",
+    "contributorRoleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "name": "[parameters('userAssignedIdentityName')]",
+      "apiVersion": "[variables('identityApiVersion')]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "[variables('roleAssignmentApiVersion')]",
+      "name": "[variables('bootstrapRoleAssignmentId')]",
+      "dependsOn": [
+          "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName'))]"
+      ],
+      "properties": {
+          "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
+          "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName')), variables('identityApiVersion')).principalId]",
+          "principalType": "ServicePrincipal"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "name": "[parameters('keyVaultName')]",
+      "apiVersion": "[variables('keyVaultApiVersion')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "enabledForDeployment": true,
+        "enabledForDiskEncryption": true,
+        "enabledForTemplateDeployment": true,
+        "tenantId": "[variables('tenantId')]",
+        "accessPolicies": [
+          {
+            "tenantId": "[variables('tenantId')]",
+            "objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName')), variables('identityApiVersion')).principalId]",
+            "permissions": {
+              "keys": [
+                "list",
+                "get"
+              ],
+              "secrets": [
+                "list",
+                "get"
+              ]
+            }
+          }
+        ],
+        "sku": {
+          "name": "standard",
+          "family": "A"
+        },
+        "networkAcls": {
+            "defaultAction": "Allow",
+            "bypass": "AzureServices"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(parameters('keyVaultName'), '/', parameters('secretName'))]",
+      "apiVersion": "[variables('keyVaultApiVersion')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ],
+      "properties": {
+        "value": "[parameters('serviceDiscoveryApiKey')]"
+      }
+    }
+  ],
+  "outputs": {
   }
+}
