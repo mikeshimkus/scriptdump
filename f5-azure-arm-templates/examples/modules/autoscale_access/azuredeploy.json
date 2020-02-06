@@ -16,9 +16,6 @@
       },    
       "serviceDiscoveryApiKey": {
         "type": "securestring"
-      },
-      "objectId": {
-        "type": "string"
       }
     },
     "variables": {
@@ -63,7 +60,7 @@
           "accessPolicies": [
             {
               "tenantId": "[variables('tenantId')]",
-              "objectId": "[parameters('objectId')]",
+              "objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName')), variables('identityApiVersion')).principalId]",
               "permissions": {
                 "keys": [
                   "list",

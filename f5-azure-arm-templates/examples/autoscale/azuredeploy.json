@@ -564,17 +564,14 @@
         "mgmtNsgID": "[resourceId('Microsoft.Network/networkSecurityGroups/',variables('mgmtNsgName'))]",    
         "keyVaultName": "[concat(variables('dnsLabel'), '-keyvault')]",
         "secretName": "[concat(variables('dnsLabel'), 'sdkey')]",
-        "objectId": "c8894742-b1e4-4dc1-b051-3307caadd846",
         "userAssignedIdentityName": "[concat(variables('dnsLabel'), '-useridentity')]",
         "serviceDiscoveryApiKey": "[replace(parameters('serviceDiscoveryApiKey'), 'OPTIONAL', '')]",
         "assignManagedIdentity": "[not(empty(variables('serviceDiscoveryApiKey')))]",
         "managedIdentityConfiguration": {
-            "identity": {
-                "type": "userAssigned",
-                "identityIds": [
-                    "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('userAssignedIdentityName'))]"
-                ]
-            }
+            "type": "userAssigned",
+            "identityIds": [
+                "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('userAssignedIdentityName'))]"
+            ]
         },   
         "appSubnetName": "app",
         "mySqlPassword": "Ch@ng3m3!",
@@ -596,7 +593,6 @@
                     "location":{ "value": "[variables('location')]" },
                     "keyVaultName":{ "value": "[variables('keyVaultName')]" },
                     "secretName":{ "value": "[variables('secretName')]" },
-                    "objectId":{ "value": "[variables('objectId')]" },                 
                     "userAssignedIdentityName":{ "value": "[variables('userAssignedIdentityName')]" }, 
                     "serviceDiscoveryApiKey":{ "value": "[variables('serviceDiscoveryApiKey')]" }                  
                 }
@@ -742,13 +738,5 @@
         }
     ],
     "outputs": {
-        "GUI-URL": {
-            "type": "string",
-            "value": "[reference('dagTemplate').outputs.GUI-URL.value]"
-          },
-        "SSH-URL": {
-            "type": "string",
-            "value": "[reference('dagTemplate').outputs.SSH-URL.value]"
-        }
     }
 }

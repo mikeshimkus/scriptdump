@@ -1,0 +1,102 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "templateBaseUrl": {
+      "value": "https://raw.githubusercontent.com/edwoodjrjr/scriptdump/master/"
+    },
+    "artifactLocation": {
+      "value": "f5-azure-arm-templates/examples/"
+    },
+    "customDoDeclarationUrl": {
+      "value": "OPTIONAL"
+    },
+    "customAs3DeclarationUrl": {
+      "value": "OPTIONAL"
+    },
+    "adminUsername": {
+      "value": "azureuser"
+    },
+    "sshKey": {
+      "value": ""
+    },
+    "dnsLabel": {
+      "value": ""
+    },
+    "instanceType": {
+      "value": "Standard_DS4_v2"
+    },
+    "imageName": {
+      "value": "Best25Mbps"
+    },
+    "customImage": {
+      "value": "OPTIONAL"
+    },
+    "bigIpVersion": {
+      "value": "15.0.100000"
+    },
+    "provisionPublicIP": {
+      "value": "Yes"
+    },
+    "vnetAddressPrefix": {
+      "value": "10.0"
+    },
+    "mgmtNsgName": {
+      "value": "OPTIONAL"
+    },
+    "restrictedSrcAddress": {
+      "value": "*"
+    },
+    "vmScaleSetMinCount": {
+      "value": 1
+    },
+    "vmScaleSetMaxCount": {
+      "value": 2
+    },
+    "appInsights": {
+      "value": "CREATE_NEW"
+    },
+    "scaleOutCpuThreshold": {
+      "value": 80
+    },
+    "scaleInCpuThreshold": {
+      "value": 20
+    },
+    "scaleOutThroughputThreshold": {
+      "value": 20000000
+    },
+    "scaleInThroughputThreshold": {
+      "value": 10000000
+    },
+    "scaleInTimeWindow": {
+      "value": 10
+    },
+    "notificationEmail": {
+      "value": 10
+    },
+    "externalLoadBalancerName": {
+      "value": "OPTIONAL"
+    },
+    "internalLoadBalancerName": {
+      "value": "OPTIONAL"
+    },
+    "useAvailabilityZones": {
+      "value": "Yes"
+    },
+    "provisionApp": {
+      "value": "No"
+    },
+    "serviceDiscoveryApiKey": {
+      "value": ""
+    },
+    "tagValues": {
+      "value": {
+        "application": "APP",
+        "cost": "COST",
+        "environment": "ENV",
+        "group": "GROUP",
+        "owner": "OWNER"
+      }
+    }
+  }
+}
