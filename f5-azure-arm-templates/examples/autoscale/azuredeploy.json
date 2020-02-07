@@ -3,11 +3,7 @@
     "contentVersion": "7.2.0.0",
     "parameters": {
         "templateBaseUrl": {
-            "allowedValues": [
-                "https://raw.githubusercontent.com/edwoodjrjr/scriptdump/master/",
-                "https://cdn.f5.com/product/cloudsolutions/"
-            ],
-            "defaultValue": "https://raw.githubusercontent.com/edwoodjrjr/scriptdump/master/",
+            "defaultValue": "https://cdn.f5.com/product/cloudsolutions/",
             "metadata": {
                 "description": "URL where templates are stored."
             },
