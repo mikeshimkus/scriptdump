@@ -34,19 +34,6 @@
       "location": "[parameters('location')]"
     },
     {
-      "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "[variables('roleAssignmentApiVersion')]",
-      "name": "[variables('bootstrapRoleAssignmentId')]",
-      "dependsOn": [
-          "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName'))]"
-      ],
-      "properties": {
-          "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",
-          "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName')), variables('identityApiVersion')).principalId]",
-          "principalType": "ServicePrincipal"
-      }
-    },
-    {
       "type": "Microsoft.KeyVault/vaults",
       "name": "[parameters('keyVaultName')]",
       "apiVersion": "[variables('keyVaultApiVersion')]",
