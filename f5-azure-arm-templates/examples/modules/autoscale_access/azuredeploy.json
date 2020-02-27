@@ -1,85 +1,84 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "location": {
-      "type": "string"
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "location": {
+        "type": "string"
+      },
+      "keyVaultName": {
+        "type": "string"
+      },
+      "secretName": {
+        "type": "string"
+      },
+      "userAssignedIdentityName": {
+        "type": "string"
+      },    
+      "serviceDiscoveryApiKey": {
+        "type": "securestring"
+      }
     },
-    "keyVaultName": {
-      "type": "string"
+    "variables": {
+      "identityApiVersion": "2018-11-30",
+      "keyVaultApiVersion": "2018-02-14",
+      "tenantId": "[subscription().tenantId]"
     },
-    "secretName": {
-      "type": "string"
-    },
-    "userAssignedIdentityName": {
-      "type": "string"
-    },    
-    "serviceDiscoveryApiKey": {
-      "type": "securestring"
-    }
-  },
-  "variables": {
-    "identityApiVersion": "2018-11-30",
-    "keyVaultApiVersion": "2018-02-14",
-    "roleAssignmentApiVersion": "2018-09-01-preview",
-    "tenantId": "[subscription().tenantId]"
-  },
-  "resources": [
-    {
-      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-      "name": "[parameters('userAssignedIdentityName')]",
-      "apiVersion": "[variables('identityApiVersion')]",
-      "location": "[parameters('location')]"
-    },
-    {
-      "type": "Microsoft.KeyVault/vaults",
-      "name": "[parameters('keyVaultName')]",
-      "apiVersion": "[variables('keyVaultApiVersion')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "enabledForDeployment": true,
-        "enabledForDiskEncryption": true,
-        "enabledForTemplateDeployment": true,
-        "tenantId": "[variables('tenantId')]",
-        "accessPolicies": [
-          {
-            "tenantId": "[variables('tenantId')]",
-            "objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName')), variables('identityApiVersion')).principalId]",
-            "permissions": {
-              "keys": [
-                "list",
-                "get"
-              ],
-              "secrets": [
-                "list",
-                "get"
-              ]
+    "resources": [
+      {
+        "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+        "name": "[parameters('userAssignedIdentityName')]",
+        "apiVersion": "[variables('identityApiVersion')]",
+        "location": "[parameters('location')]"
+      },
+      {
+        "type": "Microsoft.KeyVault/vaults",
+        "name": "[parameters('keyVaultName')]",
+        "apiVersion": "[variables('keyVaultApiVersion')]",
+        "location": "[parameters('location')]",
+        "properties": {
+          "enabledForDeployment": true,
+          "enabledForDiskEncryption": true,
+          "enabledForTemplateDeployment": true,
+          "tenantId": "[variables('tenantId')]",
+          "accessPolicies": [
+            {
+              "tenantId": "[variables('tenantId')]",
+              "objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('userAssignedIdentityName')), variables('identityApiVersion')).principalId]",
+              "permissions": {
+                "keys": [
+                  "list",
+                  "get"
+                ],
+                "secrets": [
+                  "list",
+                  "get"
+                ]
+              }
             }
+          ],
+          "sku": {
+            "name": "standard",
+            "family": "A"
+          },
+          "networkAcls": {
+              "defaultAction": "Allow",
+              "bypass": "AzureServices"
           }
+        }
+      },
+      {
+        "type": "Microsoft.KeyVault/vaults/secrets",
+        "name": "[concat(parameters('keyVaultName'), '/', parameters('secretName'))]",
+        "apiVersion": "[variables('keyVaultApiVersion')]",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
         ],
-        "sku": {
-          "name": "standard",
-          "family": "A"
-        },
-        "networkAcls": {
-            "defaultAction": "Allow",
-            "bypass": "AzureServices"
+        "properties": {
+          "value": "[parameters('serviceDiscoveryApiKey')]"
         }
       }
-    },
-    {
-      "type": "Microsoft.KeyVault/vaults/secrets",
-      "name": "[concat(parameters('keyVaultName'), '/', parameters('secretName'))]",
-      "apiVersion": "[variables('keyVaultApiVersion')]",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-      ],
-      "properties": {
-        "value": "[parameters('serviceDiscoveryApiKey')]"
-      }
+    ],
+    "outputs": {
     }
-  ],
-  "outputs": {
   }
-}

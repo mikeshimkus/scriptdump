@@ -68,11 +68,14 @@
     "scaleInThroughputThreshold": {
       "value": 10000000
     },
+    "scaleOutTimeWindow": {
+      "value": 10
+    },
     "scaleInTimeWindow": {
       "value": 10
     },
     "notificationEmail": {
-      "value": 10
+      "value": "OPTIONAL"
     },
     "externalLoadBalancerName": {
       "value": "OPTIONAL"
