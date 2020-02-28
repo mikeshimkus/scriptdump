@@ -339,8 +339,8 @@
         "deploymentId": "[concat(variables('subscriptionId'), resourceGroup().id, deployment().name, variables('dnsLabel'))]",
         "dnsLabel": "[toLower(parameters('dnsLabel'))]",
         "sshKey": "[replace(parameters('sshKey'),'\\n', '\n')]",
-        "dODeclarationUrl": "[replace(parameters('customDoDeclarationUrl'), 'OPTIONAL', concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/autoscale_bigip/do.json'))]",
-        "as3DeclarationUrl": "[replace(parameters('customAs3DeclarationUrl'), 'OPTIONAL', concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/autoscale_bigip/as3.json'))]",  
+        "dODeclarationUrl": "[replace(parameters('customDoDeclarationUrl'), 'OPTIONAL', concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bigip/autoscale_do.json'))]",
+        "as3DeclarationUrl": "[replace(parameters('customAs3DeclarationUrl'), 'OPTIONAL', concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bigip/autoscale_as3.json'))]",  
         "customImage": "[replace(parameters('customImage'), 'OPTIONAL', '')]",
         "useCustomImage": "[not(empty(variables('customImage')))]",
         "createNewCustomImage": "[contains(variables('customImage'), 'https://')]",
@@ -582,7 +582,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/autoscale_access/azuredeploy.json')]",
+                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/access/azuredeploy.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -601,7 +601,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/autoscale_network/azuredeploy.json')]",
+                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/network/azuredeploy.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -630,7 +630,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/autoscale_dag/azuredeploy.json')]",
+                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/dag/azuredeploy.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -660,7 +660,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/autoscale_bigip/azuredeploy.json')]",
+                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bigip/azuredeploy.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {       
@@ -717,7 +717,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/application_example/azuredeploy.json')]",
+                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/application/azuredeploy.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
