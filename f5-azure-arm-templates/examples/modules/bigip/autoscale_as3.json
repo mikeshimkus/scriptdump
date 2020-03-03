@@ -15,8 +15,9 @@
           "serviceMain": {
             "class": "Service_HTTP",
             "virtualAddresses": [
-              "10.1.0.4"
+              "0.0.0.0"
             ],
+            "virtualPort": 80,
             "pool": "webPool",
             "policyWAF": {
                 "use": "My_ASM_Policy"
