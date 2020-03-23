@@ -16,17 +16,24 @@
             },
             "type": "string"
         },
-        "customDoDeclarationUrl": {
+        "doDeclarationUrl": {
             "defaultValue": "OPTIONAL",
             "metadata": {
                 "description": "If you would like to use a custom DO declaraton for configuring BIG-IP, specify the URL here.  **Note**: To use the default recommended declaration, leave the default of **OPTIONAL**."
             },
             "type": "string"
         }, 
-        "customAs3DeclarationUrl": {
+        "as3DeclarationUrl": {
             "defaultValue": "OPTIONAL",
             "metadata": {
                 "description": "If you would like to use a custom AS3 declaraton for configuring BIG-IP, specify the URL here.  **Note**: To use the default recommended declaration, leave the default of **OPTIONAL**."
+            },
+            "type": "string"
+        },
+        "tsDeclarationUrl": {
+            "defaultValue": "OPTIONAL",
+            "metadata": {
+                "description": "If you would like to use a custom TS declaraton for configuring BIG-IP, specify the URL here.  **Note**: To use the default recommended declaration, leave the default of **OPTIONAL**."
             },
             "type": "string"
         },
@@ -309,6 +316,13 @@
             },
             "type": "string"
         },
+        "application1ContainerName": {
+            "defaultValue": "f5devcentral/f5-demo-app:1.0.1",
+            "metadata": {
+                "description": "Container Name for application 1 stack."
+            },
+            "type": "string"           
+        },
         "serviceDiscoveryApiKey": {
             "defaultValue": "OPTIONAL",
             "metadata": {
@@ -339,8 +353,9 @@
         "deploymentId": "[concat(variables('subscriptionId'), resourceGroup().id, deployment().name, variables('dnsLabel'))]",
         "dnsLabel": "[toLower(parameters('dnsLabel'))]",
         "sshKey": "[replace(parameters('sshKey'),'\\n', '\n')]",
-        "dODeclarationUrl": "[replace(parameters('customDoDeclarationUrl'), 'OPTIONAL', concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bigip/autoscale_do.json'))]",
-        "as3DeclarationUrl": "[replace(parameters('customAs3DeclarationUrl'), 'OPTIONAL', concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bigip/autoscale_as3.json'))]",  
+        "doDeclarationUrl": "[replace(parameters('doDeclarationUrl'), 'OPTIONAL', concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bigip/autoscale_do.json'))]",
+        "as3DeclarationUrl": "[replace(parameters('as3DeclarationUrl'), 'OPTIONAL', concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bigip/autoscale_as3.json'))]",
+        "tsDeclarationUrl": "[replace(parameters('tsDeclarationUrl'), 'OPTIONAL', concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bigip/autoscale_ts.json'))]",  
         "customImage": "[replace(parameters('customImage'), 'OPTIONAL', '')]",
         "useCustomImage": "[not(empty(variables('customImage')))]",
         "createNewCustomImage": "[contains(variables('customImage'), 'https://')]",
@@ -667,7 +682,8 @@
                     "location":{ "value": "[variables('location')]" },
                     "subscriptionID":{ "value": "[variables('subscriptionID')]" },         
                     "as3DeclarationUrl":{ "value": "[variables('as3DeclarationUrl')]" },
-                    "dODeclarationUrl":{ "value": "[variables('dODeclarationUrl')]" },
+                    "doDeclarationUrl":{ "value": "[variables('doDeclarationUrl')]" },
+                    "tsDeclarationUrl":{ "value": "[variables('tsDeclarationUrl')]" },
                     "adminUsername":{ "value": "[parameters('adminUsername')]" },
                     "sshKey":{ "value": "[parameters('sshKey')]" },
                     "useCustomImage":{ "value": "[variables('useCustomImage')]" },
@@ -725,6 +741,7 @@
                     "dnsLabel":{ "value": "[concat(variables('dnsLabel'), 'app')]" },
                     "adminUsername":{ "value": "[parameters('adminUsername')]" },
                     "sshKey":{ "value": "[parameters('sshKey')]" },
+                    "application1ContainerName":{ "value": "[parameters('application1ContainerName')]" },
                     "appVnetName":{ "value": "[variables('virtualNetworkName')]" },
                     "appSubnetName":{ "value": "[variables('appSubnetName')]" },                   
                     "storageAccountNamePrefix":{ "value": "[variables('dnsLabel')]" },

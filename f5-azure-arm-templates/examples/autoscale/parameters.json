@@ -8,10 +8,13 @@
     "artifactLocation": {
       "value": "f5-azure-arm-templates/examples/"
     },
-    "customDoDeclarationUrl": {
+    "dodeclarationurl": {
       "value": "OPTIONAL"
     },
-    "customAs3DeclarationUrl": {
+    "as3declarationurl": {
+      "value": "OPTIONAL"
+    },
+    "tsdeclarationurl": {
       "value": "OPTIONAL"
     },
     "adminUsername": {
@@ -88,6 +91,9 @@
     },
     "provisionApp": {
       "value": "No"
+    },
+    "application1ContainerName": {
+        "value": "f5devcentral/f5-demo-app:1.0.1"          
     },
     "serviceDiscoveryApiKey": {
       "value": ""
