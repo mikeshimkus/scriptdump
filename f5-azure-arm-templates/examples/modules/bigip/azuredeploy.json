@@ -121,7 +121,10 @@
         },
         "managedIdentityConfiguration": {
 			"type": "object"
-        }
+        },
+		"deployingBigiq": {
+			"type": "bool"
+		}
 	},
 	"variables": {
 		"computeApiVersion": "2017-12-01",

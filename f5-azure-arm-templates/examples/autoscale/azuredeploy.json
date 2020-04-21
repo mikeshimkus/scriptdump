@@ -496,8 +496,8 @@
         ],   
         "imageNameToLower": "[toLower(parameters('imageName'))]",
         "deployingBigiq": "[contains(parameters('imageName'), 'BootLocation')]", 
-        "skuToUse": "[if(variables('deployingBigiq'), variables('paygImageMap')[variables('imageNameToLower')]['sku'], concat('f5-', variables('imageNameSub'),'-byol'))]",
-        "offerToUse": "[if(variables('deployingBigiq'), variables('paygImageMap')[variables('imageNameToLower')]['offer'], concat('f5-big-ip-', variables('imageNameArray').offerPostfix[variables('imageNameSub')]))]",
+        "skuToUse": "[if(variables('deployingBigiq'), concat('f5-', variables('imageNameSub'),'-byol'), variables('paygImageMap')[variables('imageNameToLower')]['sku'])]",
+        "offerToUse": "[if(variables('deployingBigiq'), concat('f5-big-ip-', variables('imageNameArray').offerPostfix[variables('imageNameSub')]), variables('paygImageMap')[variables('imageNameToLower')]['offer'])]",
         "imagePlan": {
             "name": "[variables('skuToUse')]",
             "product": "[variables('offerToUse')]",
