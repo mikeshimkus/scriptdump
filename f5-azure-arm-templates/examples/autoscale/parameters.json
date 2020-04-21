@@ -21,10 +21,10 @@
       "value": "azureuser"
     },
     "sshKey": {
-      "value": ""
+      "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDU681ZYdNMOqxce8uTqyTFQ3ycK6Ye5Gy2XrZXo3WAXqvLCqkosMJP5G90TuDtydplY/yV7/Rknd5U3qRkMMwm6gy6w4rWIth6dxQWFNXjLcIS3Moh2XBRnPqdoLrRreupA0eWEChCYDDJTkAMI0lQ9NrvMjjAfB4vPUjugExhPf57AEiBxA8gNg+MzZO56jUIWgNgOkbJfIAb23OcKieUzO9a9bhwJy1JewGS2x6rvhnJogn6P2T4em/Ebmvq/wTNTVUqC2iHpoNOT3LYYemaOSIYYhNvzMACnc8c3G1R1QMb+vPBo6UkipA6PXfHaTjJXTk4F1P0NrBfNn1yww6F shimkus@SEA-ML-00058524"
     },
     "dnsLabel": {
-      "value": ""
+      "value": "shimkusauto"
     },
     "instanceType": {
       "value": "Standard_DS4_v2"

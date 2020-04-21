@@ -45,5 +45,6 @@ Templates are grouped into the following categories.
             * In place via live installs from an available slot.<br>
  
 ## Deployment Flow Example
+Autoscale example template shown
 
-![Deployment](./images/azure_top_level_readme.gif)
+![Deployment](./images/azure-autoscale-example-diagram.png)

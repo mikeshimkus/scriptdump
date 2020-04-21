@@ -1,223 +1,198 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-      "application1ContainerName": {
-        "type": "string"          
-      },
-      "storageAccountNamePrefix": {
-        "type": "string"
-      },
-      "adminUsername": {
-        "type": "string"
-      },
-      "mySqlPassword": {
-        "type": "securestring"
-      },
-      "dnsLabel": {
-        "type": "string"
-      },
-      "location": {
-        "type": "string"
-      },
-      "sshKey": {
-        "type": "securestring"
-      },
-      "appVnetName": {
-        "type": "string"
-      },
-      "appSubnetName": {
-        "type": "string"
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Virtual Network Name"
       }
     },
-    "variables": {
-      "ubuntuOSVersion": "14.04.5-LTS",
-      "imagePublisher": "Canonical",
-      "imageOffer": "UbuntuServer",
-      "OSDiskName": "osdiskforlinuxsimple",
-      "nicName": "[concat(parameters('dnsLabel'), '-appNic')]",
-      "storageAccountType": "Standard_LRS",
-      "publicIPAddressName": "[concat(parameters('dnsLabel'), '-appPip')]",
-      "publicIPAddressType": "Dynamic",
-      "vmStorageAccountContainerName": "vhds",
-      "vmName": "[concat(parameters('dnsLabel'), '-appVm')]",
-      "vmSize": "Standard_A2",
-      "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('appVnetName'), parameters('appSubnetName'))]",
-      "networkSecurityGroupName": "[concat(parameters('dnsLabel'), '-appNsg')]",
-      "tagValues": {
-        "foo": "bar"
+    "vnetResourceGroupName": {
+      "metadata": {
+        "description": "The name of the resource group that contains the Virtual Network where the BIG-IP VE will be placed."
+      },
+      "type": "string"
+    },
+    "subnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Existing subnet name which will be used for getting vm/app private address"
       }
     },
-    "resources": [
-      {
-        "apiVersion": "2015-06-15",
-        "type": "Microsoft.Storage/storageAccounts",
-        "name": "[parameters('storageAccountNamePrefix')]",
-        "location": "[parameters('location')]",
-        "properties": {
-          "accountType": "[variables('storageAccountType')]"
-        }
-      },
-      {
-        "apiVersion": "2015-06-15",
-        "type": "Microsoft.Network/publicIPAddresses",
-        "name": "[variables('publicIPAddressName')]",
-        "location": "[parameters('location')]",
-        "properties": {
-          "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
-          "dnsSettings": {
-            "domainNameLabel": "[parameters('dnsLabel')]"
-          }
-        }
-      },
-      {
-        "comments": "Default Network Security Group for template",
-        "type": "Microsoft.Network/networkSecurityGroups",
-        "apiVersion": "2019-08-01",
-        "name": "[variables('networkSecurityGroupName')]",
-        "location": "[parameters('location')]",
-        "properties": {
-          "securityRules": [
-            {
-              "name": "default-allow-22",
-              "properties": {
-                "priority": 1000,
-                "access": "Allow",
-                "direction": "Inbound",
-                "destinationPortRange": "22",
-                "protocol": "Tcp",
-                "sourceAddressPrefix": "*",
-                "sourcePortRange": "*",
-                "destinationAddressPrefix": "*"
-              }
+    "appPrivateAddress": {
+      "type": "string",
+      "metadata": {
+        "description": "Private address from subnet; this address is assigned to VM"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Admin username used for accessing VM"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Admin password used for accessing VM"
+      }
+    },
+    "dnsLabel": {
+      "type": "string",
+      "metadata": {
+        "description": "DNS Label used within deployment"
+      }
+    },
+    "instanceName": {
+      "type": "string",
+      "defaultValue": "vm01",
+      "metadata": {
+        "description": "VM instance name"
+      }
+    },
+    "instanceType": {
+      "type": "string",
+      "allowedValues": [
+        "Standard_D2s_v3"
+      ],
+      "defaultValue": "Standard_D2s_v3",
+      "metadata": {
+        "description": "Instance size of the Virtual Machine."
+      }
+    },
+    "initScriptParameters": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Space separated init script parameters"
+      }
+    },
+    "initScriptDeliveryLocation": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "URI to init script file. Template downloads and parses init script filename from URI"
+      }
+    },
+    "cloudInitDeliveryLocation": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "URI to cloud init file used for customizing VM"
+      }
+    }
+  },
+  "variables": {
+    "apiVersion": "2015-06-15",
+    "subscriptionID": "[subscription().subscriptionId]",
+    "storageAccountType": "Standard_LRS",
+    "publicIPAddressType": "Static",
+    "vnetId": "[resourceId(parameters('vnetResourceGroupName'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
+    "subnetId": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
+    "vmName": "[concat(resourceGroup().name, '-app')]",
+    "nicName": "[concat(variables('vmName'), '-nic')]",
+    "storageName": "[concat(uniqueString(parameters('dnsLabel'), resourceGroup().id, deployment().name), 'data000')]",
+    "initScriptFileName": "vm-init.sh",
+    "cloudInit": "[concat('#include\n',parameters('cloudInitDeliveryLocation'))]"
+  },
+  "resources": [
+    {
+      "name": "[variables('vmName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "[variables('apiVersion')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('storageName'))]"
+      ],
+      "properties": {
+        "osProfile": {
+          "computerName": "[variables('vmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "customData": "[base64(variables('cloudInit'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('instanceType')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "16.04.0-LTS",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[concat(variables('vmName'), '-osdisk')]",
+            "vhd": {
+              "uri": "[concat(concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-06-15').primaryEndpoints['blob'], 'vhds/'), variables('storageName'), '.vhd')]"
             },
+            "caching": "ReadWrite",
+            "createOption": "fromImage"
+          },
+          "dataDisks": []
+        },
+        "networkProfile": {
+          "networkInterfaces": [
             {
-              "name": "default-allow-80",
-              "properties": {
-                "priority": 1001,
-                "access": "Allow",
-                "direction": "Inbound",
-                "destinationPortRange": "80",
-                "protocol": "Tcp",
-                "sourceAddressPrefix": "*",
-                "sourcePortRange": "*",
-                "destinationAddressPrefix": "*"
-              }
-            },
-            {
-                "name": "default-allow-443",
-                "properties": {
-                  "priority": 1002,
-                  "access": "Allow",
-                  "direction": "Inbound",
-                  "destinationPortRange": "443",
-                  "protocol": "Tcp",
-                  "sourceAddressPrefix": "*",
-                  "sourcePortRange": "*",
-                  "destinationAddressPrefix": "*"
-                }
-              }
-          ]
-        }
-      },
-      {
-        "apiVersion": "2015-06-15",
-        "type": "Microsoft.Network/networkInterfaces",
-        "name": "[variables('nicName')]",
-        "location": "[parameters('location')]",
-        "dependsOn": [
-          "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]"
-        ],
-        "properties": {
-          "ipConfigurations": [
-            {
-              "name": "appipconfig1",
-              "properties": {
-                "privateIPAllocationMethod": "Dynamic",
-                "publicIPAddress": {
-                  "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
-                },
-                "subnet": {
-                  "id": "[variables('subnetRef')]"
-                }
-              }
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
             }
           ]
         }
-      },
-      {
-        "apiVersion": "2017-03-30",
-        "type": "Microsoft.Compute/virtualMachines",
-        "name": "[variables('vmName')]",
-        "location": "[parameters('location')]",
-        "tags": "[variables('tagValues')]",
-        "dependsOn": [
-          "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountNamePrefix'))]",
-          "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
-        ],
-        "properties": {
-          "hardwareProfile": {
-            "vmSize": "[variables('vmSize')]"
-          },
-          "osProfile": {
-            "computerName": "[variables('vmName')]",
-            "adminUsername": "[parameters('adminUsername')]",
-            "linuxConfiguration": {
-                "disablePasswordAuthentication": true,
-                "ssh": {
-                  "publicKeys": [
-                    {
-                      "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
-                      "keyData": "[parameters('sshKey')]"
-                    }
-                  ]
-                }
-              }
-          },
-          "storageProfile": {
-            "imageReference": {
-              "publisher": "[variables('imagePublisher')]",
-              "offer": "[variables('imageOffer')]",
-              "sku": "[variables('ubuntuOSVersion')]",
-              "version": "latest"
-            },
-            "osDisk": {
-              "name": "[concat(variables('vmName'),'_OSDisk')]",
-              "caching": "ReadWrite",
-              "createOption": "FromImage"
-            }
-          },
-          "networkProfile": {
-            "networkInterfaces": [
-              {
-                "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "Microsoft.Compute/virtualMachines/extensions",
-        "name": "[concat(variables('vmName'),'/newuserscript')]",
-        "apiVersion": "2015-06-15",
-        "location": "[parameters('location')]",
-        "dependsOn": [
-          "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-        ],
-        "properties": {
-          "publisher": "Microsoft.Azure.Extensions",
-          "type": "CustomScript",
-          "typeHandlerVersion": "2.0",
-          "autoUpgradeMinorVersion": true,
-          "settings": {
-            "fileUris": [
-              "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/lamp-app/install_lamp.sh"
-            ]
-          },
-          "protectedSettings": {
-            "commandToExecute": "[concat('sh install_lamp.sh ', parameters('mySqlPassword'))]"
-          }
+      }
+    },
+    {
+      "name": "[concat(variables('vmName'),'/vmInit')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "condition": "[not(empty(parameters('initScriptDeliveryLocation')))]",
+      "apiVersion": "[variables('apiVersion')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.0",
+        "settings": {
+          "fileUris": [
+            "[parameters('initScriptDeliveryLocation')]"
+          ],
+          "commandToExecute": "[concat('./', last(split(parameters('initScriptDeliveryLocation'),'/')), ' ' , parameters('initScriptParameters'))]"
         }
       }
-    ]
+    },
+    {
+      "name": "[variables('storageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "[variables('apiVersion')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "accountType": "[variables('storageAccountType')]"
+      }
+    },
+    {
+      "name": "[variables('nicName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "[variables('apiVersion')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "[concat(variables('vmName'), '-ipconfig1')]",
+            "properties": {
+              "subnet": {
+                "id": "[variables('subnetId')]"
+              },
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[parameters('appPrivateAddress')]"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
   }
+}

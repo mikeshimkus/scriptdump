@@ -1,0 +1,232 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"dnsLabel": {
+			"type": "string",
+			"metadata": {
+				"description": "The DNS label from the calling deployment."
+			}
+		},
+		"bigIqAddress": {
+			"defaultValue": "OPTIONAL",
+			"metadata": {
+				"description": "The IP address (or hostname) for the BIG-IQ to be used when licensing the BIG-IP.  Note: The BIG-IP will make a REST call to the BIG-IQ (already existing) to let it know a BIG-IP needs to be licensed. It will then license the BIG-IP using the provided BIG-IQ credentials and license pool."
+			},
+			"type": "string"
+		},
+		"bigIqUsername": {
+			"defaultValue": "azureuser",
+			"metadata": {
+				"description": "The BIG-IQ username to use during BIG-IP licensing via BIG-IQ."
+			},
+			"type": "string"
+		},
+		"bigIqPassword": {
+      "defaultValue": "OPTIONAL",
+			"metadata": {
+				"description": "The BIG-IQ password to use during BIG-IP licensing via BIG-IQ."
+			},
+			"type": "securestring"
+		},
+		"bigIqLicensePoolName": {
+			"defaultValue": "OPTIONAL",
+			"metadata": {
+				"description": "The BIG-IQ license pool to use during BIG-IP licensing via BIG-IQ."
+			},
+			"type": "string"
+		},
+		"bigIqLicenseSkuKeyword1": {
+			"defaultValue": "OPTIONAL",
+			"metadata": {
+				"description": "The BIG-IQ license filter (based on SKU keyword) you want to use for licensing the BIG-IPs from the BIG-IQ, for example **F5-BIG-MSP-LTM-25M**, **F5-BIG-MSP-BR-200M**, **F5-BIG-MSP-BT-1G** or **F5-BIG-MSP-ASM-1G**. ***Important***: This is only required when licensing with an ELA/subscription (utility) pool on the BIG-IQ, if not using this pool type leave the default of **OPTIONAL**."
+			},
+			"type": "string"
+		},
+		"bigIqLicenseUnitOfMeasure": {
+			"defaultValue": "OPTIONAL",
+			"metadata": {
+				"description": "The BIG-IQ license unit of measure to use during BIG-IP licensing via BIG-IQ, for example **yearly**, **monthly**, **daily** or **hourly**. ***Important***: This is only required when licensing with an ELA/subscription (utility) pool on the BIG-IQ, if not using this pool type leave the default of **OPTIONAL**."
+			},
+			"type": "string"
+		}
+	},
+	"variables": {
+    "dnsLabel": "[toLower(parameters('dnsLabel'))]",
+    "location": "[resourceGroup().location]",
+    "resourceGroupName": "[resourceGroup().name]",
+    "subscriptionID": "[subscription().subscriptionId]",
+    "authApiVersion": "2018-07-01",
+    "functionAppApiVersion": "2018-11-01",
+    "serverFarmApiVersion": "2018-02-01",
+		"identityApiVersion": "2018-11-30",
+		"keyVaultApiVersion": "2018-02-14",
+    "appInightsApiVersion": "2018-05-01-preview",
+    "storageApiVersion": "2017-10-01",
+    "keyVaultName": "[concat(variables('dnsLabel'), '-keyvault')]",
+    "secretName": "[concat(variables('dnsLabel'), 'bigiq')]",
+    "identityName": "[concat(variables('dnsLabel'), '-identity')]",
+    "functionAppName": "[concat(variables('dnsLabel'), '-function')]",
+		"applicationInsightsName": "[variables('functionAppName')]",
+		"functionWorkerRuntime": "python",
+		"functionStorageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
+    "functionStorageAccountId": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('functionStorageAccountName'))]",
+		"hostingPlanName": "[concat(variables('dnsLabel'), '-plan')]",
+    "vmssName": "[concat(variables('dnsLabel'),'-vmss')]"
+	},
+	"resources": [
+    {
+			"type": "Microsoft.Storage/storageAccounts",
+			"name": "[variables('functionStorageAccountName')]",
+			"apiVersion": "[variables('storageApiVersion')]",
+			"location": "[variables('location')]",
+			"kind": "Storage",
+			"sku": {
+				"name": "Standard_LRS"
+			}
+		},
+		{
+			"type": "Microsoft.Web/serverfarms",
+			"apiVersion": "[variables('serverFarmApiVersion')]",
+			"name": "[variables('hostingPlanName')]",
+			"location": "[variables('location')]",
+			"sku": {
+				"name": "Y1",
+				"tier": "Dynamic"
+			},
+			"properties": {
+				"name": "[variables('hostingPlanName')]",
+				"computeMode": "Dynamic"
+			}
+		},
+		{
+			"apiVersion": "[variables('functionAppApiVersion')]",
+			"name": "[variables('functionAppName')]",
+			"type": "Microsoft.Web/sites",
+			"kind": "functionapp",
+			"location": "[variables('location')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+			],
+			"identity": {
+				"type": "SystemAssigned"
+			},
+			"properties": {
+				"siteConfig": {
+					"appSettings": [{
+						"name": "FUNCTIONS_EXTENSION_VERSION",
+						"value": "~3"
+					}]
+				},
+				"serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+			},
+			"resources": [{
+					"apiVersion": "[variables('functionAppApiVersion')]",
+					"name": "appsettings",
+					"type": "config",
+					"dependsOn": [
+						"[resourceId('Microsoft.Web/sites', variables('functionAppName'))]",
+						"[resourceId('Microsoft.KeyVault/vaults/', variables('keyVaultName'))]",
+						"[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), variables('secretName'))]",
+						"[resourceId('Microsoft.Storage/storageAccounts', variables('functionStorageAccountName'))]",
+						"[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]"
+					],
+					"properties": {
+						"AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('functionStorageAccountName'), ';AccountKey=', listKeys(variables('functionStorageAccountId'),'2015-05-01-preview').key1)]",
+						"APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]",
+						"FUNCTIONS_EXTENSION_VERSION": "~3",
+						"FUNCTIONS_WORKER_RUNTIME": "[variables('functionWorkerRuntime')]",
+						"WEBSITE_NODE_DEFAULT_VERSION": "~12",
+						"BIGIQ_ADDRESS": "[parameters('bigIqAddress')]",
+						"BIGIQ_USERNAME": "[parameters('bigIqUsername')]",
+						"BIGIQ_LICENSE_POOL": "[parameters('bigIqLicensePoolName')]",
+						"BIGIQ_LICENSE_SKU": "[parameters('bigIqLicenseSkuKeyword1')]",
+						"BIGIQ_LICENSE_UNIT": "[parameters('bigIqLicenseUnitOfMeasure')]",
+						"BIGIQ_PASSWORD": "[concat('@Microsoft.KeyVault(SecretUri=https://', variables('keyVaultName'), '.vault.azure.net/secrets/', variables('secretName'), '/)')]",
+						"AZURE_RESOURCE_GROUP": "[variables('resourceGroupName')]",
+						"AZURE_VMSS_NAME": "[variables('vmssName')]",
+						"WEBSITE_ENABLE_SYNC_UPDATE_SITE": true
+					}
+				},
+				{
+					"apiVersion": "[variables('functionAppApiVersion')]",
+					"name": "web",
+					"type": "sourcecontrols",
+					"dependsOn": [
+						"[resourceId('Microsoft.Web/sites', variables('functionAppName'))]",
+						"[resourceId('Microsoft.Web/sites/config', variables('functionAppName'), 'appsettings')]"
+					],
+					"properties": {
+						"RepoUrl": "https://github.com/mikeshimkus/f5-azure-bigiq-revoke.git",
+						"IsManualIntegration": true
+					}
+				}
+			]
+		},
+		{
+			"apiVersion": "[variables('authApiVersion')]",
+			"type": "Microsoft.Authorization/roleAssignments",
+			"name": "[guid(concat(variables('dnsLabel'), '-role'))]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
+			],
+			"properties": {
+				"roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+				"principalId": "[reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2018-11-01', 'Full').identity.principalId]",
+				"scope": "[resourceGroup().id]"
+			}
+		},
+		{
+			"type": "Microsoft.KeyVault/vaults",
+			"name": "[variables('keyVaultName')]",
+			"location": "[variables('location')]",
+			"apiVersion": "[variables('keyVaultApiVersion')]",
+			"dependsOn": [
+				"[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
+			],
+			"properties": {
+				"tenantId": "[subscription().tenantId]",
+				"accessPolicies": [{
+					"tenantId": "[reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2018-11-01', 'Full').identity.tenantId]",
+					"objectId": "[reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2018-11-01', 'Full').identity.principalId]",
+					"permissions": {
+						"secrets": ["get"]
+					}
+				}],
+				"sku": {
+					"name": "standard",
+					"family": "A"
+				},
+				"networkAcls": {
+					"defaultAction": "Allow",
+					"bypass": "AzureServices"
+				}
+			},
+			"resources": [{
+				"type": "secrets",
+				"name": "[variables('secretName')]",
+				"apiVersion": "[variables('keyVaultApiVersion')]",
+				"dependsOn": [
+					"[resourceId('Microsoft.KeyVault/vaults/', variables('keyVaultName'))]",
+					"[resourceId('Microsoft.Storage/storageAccounts', variables('functionStorageAccountName'))]"
+				],
+				"properties": {
+					"value": "[parameters('bigIqPassword')]"
+				}
+			}]
+		},
+		{
+			"apiVersion": "[variables('appInightsApiVersion')]",
+			"name": "[variables('applicationInsightsName')]",
+			"type": "Microsoft.Insights/components",
+			"location": "East US",
+			"tags": {
+				"[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('applicationInsightsName'))]": "Resource"
+			},
+			"properties": {
+				"ApplicationId": "[variables('applicationInsightsName')]",
+				"Request_Source": "IbizaWebAppExtensionCreate"
+			}
+		}
+	]
+}

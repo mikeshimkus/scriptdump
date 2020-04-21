@@ -126,7 +126,13 @@
 	"variables": {
 		"computeApiVersion": "2017-12-01",
 		"appInsightsApiVersion": "2015-04-01",
-		"appInsightsComponentsApiVersion": "2015-05-01"
+		"appInsightsComponentsApiVersion": "2015-05-01",
+		"functionAppName": "[concat(parameters('dnsLabel'), '-function')]",
+		"webhookConfig": [
+			{
+				"serviceUri": "[concat('https://', variables('functionAppName'), '.azurewebsites.net/api/HttpTriggerRevoke')]"
+			}
+		]
 	},
 	"resources": [
         {
@@ -244,7 +250,7 @@
 						"sendToSubscriptionCoAdministrators": false
 					},
 					"operation": "Scale",
-					"webhooks": []
+					"webhooks": "[if(parameters('deployingBigiq'), variables('webhookConfig'), json('null'))]"
 				}],
 				"profiles": [{
 					"capacity": {

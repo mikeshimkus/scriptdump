@@ -126,9 +126,13 @@
                 "AdvancedWaf200Mbps",
                 "AdvancedWaf1Gbps",
                 "PerAppVeAdvancedWaf25Mbps",
-                "PerAppVeAdvancedWaf200Mbps"
+                "PerAppVeAdvancedWaf200Mbps",
+                "LTMOneBootLocation",
+				"LTMTwoBootLocations",
+				"AllOneBootLocation",
+				"AllTwoBootLocations"
             ],
-            "defaultValue": "Best1Gbps",
+            "defaultValue": "AllTwoBootLocations",
             "metadata": {
                 "description": "F5 SKU (image) you want to deploy. Note: The disk size of the VM will be determined based on the option you select.  **Important**: 10Gbps SKUs are supported only with BIGIP VE v15 or later. If intending to provision multiple modules, ensure the appropriate value is selected, such as **Best** instead of **Good**."
             },
@@ -316,12 +320,61 @@
             },
             "type": "string"
         },
-        "application1ContainerName": {
-            "defaultValue": "f5devcentral/f5-demo-app:1.0.1",
+        "appAdminUsername": {
+            "type": "string",
             "metadata": {
-                "description": "Container Name for application 1 stack."
-            },
-            "type": "string"           
+                "description": "Admin username used for accessing VM"
+            }
+        },
+        "appAdminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Admin password used for accessing VM"
+            }
+        },
+        "appPrivateAddress": {
+            "type": "string",
+            "metadata": {
+                "description": "Private address from subnet; this address is assigned to app VM and therefore must be within the app subnet"
+            }
+        },
+        "appInstanceName": {
+            "type": "string",
+            "defaultValue": "vm01",
+            "metadata": {
+                "description": "VM instance name"
+            }
+        },
+        "appInstanceType": {
+            "type": "string",
+            "allowedValues": [
+                "Standard_D2s_v3"
+            ],
+            "defaultValue": "Standard_D2s_v3",
+            "metadata": {
+                "description": "Instance size of the Virtual Machine."
+            }
+        },
+        "appInitScriptParameters": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Space separated init script parameters"
+            }
+        },
+        "appInitScriptDeliveryLocation": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "URI to init script file. Template downloads and parses init script filename from URI"
+            }
+        },
+        "appCloudInitDeliveryLocation": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "URI to cloud init file used for customizing VM"
+            }
         },
         "serviceDiscoveryApiKey": {
             "defaultValue": "OPTIONAL",
@@ -330,6 +383,48 @@
             },
             "type": "securestring"
         },
+        "bigIqAddress": {
+			"defaultValue": "OPTIONAL",
+			"metadata": {
+				"description": "The IP address (or hostname) for the BIG-IQ to be used when licensing the BIG-IP.  Note: The BIG-IP will make a REST call to the BIG-IQ (already existing) to let it know a BIG-IP needs to be licensed. It will then license the BIG-IP using the provided BIG-IQ credentials and license pool."
+			},
+			"type": "string"
+		},
+		"bigIqUsername": {
+			"defaultValue": "azureuser",
+			"metadata": {
+				"description": "The BIG-IQ username to use during BIG-IP licensing via BIG-IQ."
+			},
+			"type": "string"
+		},
+		"bigIqPassword": {
+            "defaultValue": "OPTIONAL",
+			"metadata": {
+				"description": "The BIG-IQ password to use during BIG-IP licensing via BIG-IQ."
+			},
+			"type": "securestring"
+		},
+		"bigIqLicensePoolName": {
+			"defaultValue": "OPTIONAL",
+			"metadata": {
+				"description": "The BIG-IQ license pool to use during BIG-IP licensing via BIG-IQ."
+			},
+			"type": "string"
+		},
+		"bigIqLicenseSkuKeyword1": {
+			"defaultValue": "OPTIONAL",
+			"metadata": {
+				"description": "The BIG-IQ license filter (based on SKU keyword) you want to use for licensing the BIG-IPs from the BIG-IQ, for example **F5-BIG-MSP-LTM-25M**, **F5-BIG-MSP-BR-200M**, **F5-BIG-MSP-BT-1G** or **F5-BIG-MSP-ASM-1G**. ***Important***: This is only required when licensing with an ELA/subscription (utility) pool on the BIG-IQ, if not using this pool type leave the default of **OPTIONAL**."
+			},
+			"type": "string"
+		},
+		"bigIqLicenseUnitOfMeasure": {
+			"defaultValue": "OPTIONAL",
+			"metadata": {
+				"description": "The BIG-IQ license unit of measure to use during BIG-IP licensing via BIG-IQ, for example **yearly**, **monthly**, **daily** or **hourly**. ***Important***: This is only required when licensing with an ELA/subscription (utility) pool on the BIG-IQ, if not using this pool type leave the default of **OPTIONAL**."
+			},
+			"type": "string"
+		},
         "tagValues": {
             "defaultValue": {
                 "application": "APP",
@@ -400,8 +495,9 @@
             "Standard_GS5"
         ],   
         "imageNameToLower": "[toLower(parameters('imageName'))]",
-        "skuToUse": "[variables('paygImageMap')[variables('imageNameToLower')]['sku']]",
-        "offerToUse": "[variables('paygImageMap')[variables('imageNameToLower')]['offer']]",
+        "deployingBigiq": "[contains(parameters('imageName'), 'BootLocation')]", 
+        "skuToUse": "[if(variables('deployingBigiq'), variables('paygImageMap')[variables('imageNameToLower')]['sku'], concat('f5-', variables('imageNameSub'),'-byol'))]",
+        "offerToUse": "[if(variables('deployingBigiq'), variables('paygImageMap')[variables('imageNameToLower')]['offer'], concat('f5-big-ip-', variables('imageNameArray').offerPostfix[variables('imageNameSub')]))]",
         "imagePlan": {
             "name": "[variables('skuToUse')]",
             "product": "[variables('offerToUse')]",
@@ -412,7 +508,36 @@
             "publisher": "f5-networks",
             "sku": "[variables('skuToUse')]",
             "version": "[parameters('bigIpVersion')]"
-        },    
+        },
+        "imageNameSub": "[variables('imageNameArray')[parameters('bigIpVersion')][parameters('imageName')]]",
+		"imageNameArray": {
+			"15.0.100000": {
+				"AllOneBootLocation": "big-all-1slot",
+				"AllTwoBootLocations": "big-all-2slot",
+				"LTMOneBootLocation": "big-ltm-1slot",
+				"LTMTwoBootLocations": "big-ltm-2slot"
+			},
+			"14.1.200000": {
+				"AllOneBootLocation": "big-all-1slot",
+				"AllTwoBootLocations": "big-all-2slot",
+				"LTMOneBootLocation": "big-ltm-1slot",
+				"LTMTwoBootLocations": "big-ltm-2slot"
+			},
+			"latest": {
+				"AllOneBootLocation": "big-all-2slot",
+				"AllTwoBootLocations": "big-all-2slot",
+				"LTMOneBootLocation": "big-ltm-2slot",
+				"LTMTwoBootLocations": "big-ltm-2slot"
+			},
+			"offerPostfix": {
+				"big-all-1slot": "byol",
+				"big-all-2slot": "byol",
+				"big-ltm-1slot": "byol",
+				"big-ltm-2slot": "byol",
+				"bigip-virtual-edition-best": "best",
+				"bigip-virtual-edition-good": "good"
+			}
+		},
         "zoneMappings": "[replace(toLower(string(providers('Microsoft.Compute', 'virtualMachines').zoneMappings)), ' ', '')]",
         "southcentralus": "[equals(variables('location'), string('southcentralus'))]",
         "southafricanorth": "[equals(variables('location'), string('southafricanorth'))]",
@@ -583,12 +708,33 @@
             "identityIds": [
                 "[resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('userAssignedIdentityName'))]"
             ]
-        },   
+        },  
         "appSubnetName": "app",
-        "mySqlPassword": "Ch@ng3m3!",
         "tagValues": "[parameters('tagValues')]"
     },
     "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('deploymentApiVersion')]",
+            "condition": "[variables('deployingBigiq')]",
+            "name": "functionTemplate",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/function/azuredeploy.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "dnsLabel":{ "value": "[variables('dnsLabel')]" },
+                    "bigIqAddress":{ "value": "[parameters('bigIqAddress')]" },
+                    "bigIqUsername":{ "value": "[parameters('bigIqUsername')]" },
+                    "bigIqPassword":{ "value": "[parameters('bigIqPassword')]" }, 
+                    "bigIqLicensePoolName":{ "value": "[parameters('bigIqLicensePoolName')]" },
+                    "bigIqLicenseSkuKeyword1":{ "value": "[parameters('bigIqLicenseSkuKeyword1')]" }, 
+                    "bigIqLicenseUnitOfMeasure":{ "value": "[parameters('bigIqLicenseUnitOfMeasure')]" }              
+                }
+            }
+        },
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "[variables('deploymentApiVersion')]",
@@ -718,6 +864,7 @@
                     "customEmail":{ "value": "[variables('customEmail')]" },
                     "assignManagedIdentity":{ "value": "[variables('assignManagedIdentity')]" },
                     "managedIdentityConfiguration":{ "value": "[variables('managedIdentityConfiguration')]" },
+                    "deployingBigiq":{ "value": "[variables('deployingBigiq')]" },
                     "tagValues":{ "value": "[variables('tagValues')]" }                                   
                 }
             }
@@ -737,19 +884,23 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "location":{ "value": "[variables('location')]" },
+                    "vnetName":{ "value": "[variables('virtualNetworkName')]" },
+                    "vnetResourceGroupName":{ "value": "[variables('resourceGroupName')]" },
+                    "subnetName":{ "value": "[variables('appSubnetName')]" },
+                    "appPrivateAddress":{ "value": "[parameters('appPrivateAddress')]" },
                     "dnsLabel":{ "value": "[concat(variables('dnsLabel'), 'app')]" },
-                    "adminUsername":{ "value": "[parameters('adminUsername')]" },
-                    "sshKey":{ "value": "[parameters('sshKey')]" },
-                    "application1ContainerName":{ "value": "[parameters('application1ContainerName')]" },
-                    "appVnetName":{ "value": "[variables('virtualNetworkName')]" },
-                    "appSubnetName":{ "value": "[variables('appSubnetName')]" },                   
-                    "storageAccountNamePrefix":{ "value": "[variables('dnsLabel')]" },
-                    "mySqlPassword":{ "value": "[variables('mySqlPassword')]" }                   
+                    "adminUsername":{ "value": "[parameters('appAdminUsername')]" },
+                    "adminPassword":{ "value": "[parameters('appAdminPassword')]" },
+                    "instanceName":{ "value": "[parameters('appInstanceName')]" },
+                    "instanceType":{ "value": "[parameters('appInstanceType')]" },
+                    "initScriptDeliveryLocation":{ "value": "[parameters('appInitScriptDeliveryLocation')]" },
+                    "initScriptParameters":{ "value": "[parameters('appInitScriptParameters')]" },
+                    "cloudInitDeliveryLocation":{ "value": "[parameters('appcloudInitDeliveryLocation')]" }
                 }
             }
         }
     ],
     "outputs": {
+
     }
 }
