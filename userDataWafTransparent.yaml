@@ -1,15 +1,15 @@
 ---
 extension_packages:
   install_operations:
-  - extensionHash: e7c9acb0ddfc9e9949c48b9a8de686c365764f28347aacf194a6de7e3ed183be
+  - extensionHash: 536eccb9dbf40aeabd31e64da8c5354b57d893286ddc6c075ecc9273fcca10a1
     extensionType: do
-    extensionVersion: 1.13.0
-  - extensionHash: ba2db6e1c57d2ce6f0ca20876c820555ffc38dd0a714952b4266c4daf959d987
+    extensionVersion: 1.16.0
+  - extensionHash: de615341b91beaed59195dceefc122932580d517600afce1ba8d3770dfe42d28
     extensionType: as3
-    extensionVersion: 3.20.0
-  - extensionHash: d52ad1ca23df1d9c81a9e3641fc25b593dd0c0a17cc3a90316067ae78e41a990
+    extensionVersion: 3.23.0
+  - extensionHash: 333e11a30ba88699ac14bc1e9546622540a5e889c415d5d53a8aeaf98f6f872e
     extensionType: ts
-    extensionVersion: 1.12.0
+    extensionVersion: 1.15.0
 extension_services:
   service_operations:
   - extensionType: do
@@ -33,10 +33,11 @@ extension_services:
         myLicense:
           class: License
           licenseType: licensePool
-          bigIqHost: dd-auto-173f4872-bigiq.westus.cloudapp.azure.com
+          bigIqHost: "<BIGIQ ADDRESS>"
           bigIqUsername: azureuser
           bigIqPassword: "{{{AZURE_PASSWORD}}}"
           licensePool: clpv2
+          tenant: myTenant
           skuKeyword1: F5-BIG-MSP-BT-1G
           unitOfMeasure: hourly
           reachable: false
@@ -71,7 +72,7 @@ extension_services:
               class: WAF_Policy
               ignoreChanges: false
               enforcementMode: transparent
-              url: https://raw.githubusercontent.com/f5devcentral/f5-asm-policy-templates/master/generic_ready_template/Rapid_Depolyment_Policy_13_1.xml
+              url: https://cdn.f5.com/product/cloudsolutions/solution-scripts/Rapid_Depolyment_Policy_13_1.xml
             class: Application
             serviceMain:
               class: Service_HTTP
@@ -137,5 +138,5 @@ runtime_parameters:
   secretProvider:
     type: KeyVault
     environment: azure
-    vaultUrl: https://dd-auto-173f4872sv.vault.azure.net
+    vaultUrl: https://<RESOURCE GROUP>sv.vault.azure.net
     secretId: mySecret
