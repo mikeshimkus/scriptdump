@@ -33,7 +33,7 @@ extension_services:
         myLicense:
           class: License
           licenseType: licensePool
-          bigIqHost: "<BIGIQ ADDRESS>"
+          bigIqHost: dd-auto-1d2658df-bigiq.westus.cloudapp.azure.com
           bigIqUsername: azureuser
           bigIqPassword: "{{{AZURE_PASSWORD}}}"
           licensePool: clpv2
@@ -138,5 +138,5 @@ runtime_parameters:
   secretProvider:
     type: KeyVault
     environment: azure
-    vaultUrl: https://<RESOURCE GROUP>sv.vault.azure.net
+    vaultUrl: https://dd-auto-1d2658dfsv.vault.azure.net
     secretId: mySecret
